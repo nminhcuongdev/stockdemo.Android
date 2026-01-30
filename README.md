@@ -15,6 +15,17 @@ This mobile warehouse management system enables efficient tracking and control o
 - **Stock Audit** - Comprehensive inventory counting and reconciliation with RFID batch scanning
 - **Real-time Sync** - Automatic data synchronization with backend servers
 
+## 📸 Screenshots
+
+### Login
+![Dashboard](screenshots/login.jpg)
+
+### Menu
+![Clients](screenshots/menu.jpg)
+
+### RFID 
+![Accounts](screenshots/rfid.jpg)
+
 ### Additional Capabilities
 - RFID tag reading for fast and accurate sample identification
 - Barcode scanning integration
@@ -62,5 +73,3 @@ This mobile warehouse management system enables efficient tracking and control o
 - Android smartphones and tablets
 - Handheld RFID readers (Zebra, Chainway, CipherLab, etc.)
 - Integrated RFID-enabled devices
-
-### Screenshoots
