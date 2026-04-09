@@ -1,0 +1,56 @@
+# Gradle
+.gradle/
+build/
+*/build/
+
+# Local configuration
+local.properties
+.env
+.env.*
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Kotlin
+.kotlin/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Android generated folders
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Signing files
+*.jks
+*.keystore
+
+# Logs
+*.log
+
+# Generated APK / AAB
+*.apk
+*.aab
+*.ap_
+
+# Google Services generated output
+google-services.json
+app/google-services.json
+
+# Firebase / Crashlytics
+fabric.properties
+crashlytics.properties
+
+# NDK
+obj/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
