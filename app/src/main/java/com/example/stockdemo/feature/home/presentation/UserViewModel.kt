@@ -15,10 +15,17 @@ class UserViewModel @Inject constructor(
 
     val userName: Flow<String?> = userPreferences.userName
     val userId: Flow<Int?> = userPreferences.userId
+    val languageCode: Flow<String> = userPreferences.languageCode
 
     fun saveUser(name: String, id: Int) {
         viewModelScope.launch {
             userPreferences.saveUser(name, id)
+        }
+    }
+
+    fun updateLanguage(languageCode: String) {
+        viewModelScope.launch {
+            userPreferences.saveLanguageCode(languageCode)
         }
     }
 

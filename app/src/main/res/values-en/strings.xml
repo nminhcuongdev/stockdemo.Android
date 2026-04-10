@@ -1,0 +1,106 @@
+﻿<resources>
+    <string name="app_name">StockDemo</string>
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="scan">Scan</string>
+    <string name="stop">Stop</string>
+    <string name="send">Send</string>
+    <string name="logout">Logout</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="na">N/A</string>
+
+    <string name="menu_title">WAREHOUSE</string>
+    <string name="menu_greeting">Hello,</string>
+    <string name="menu_guest">Guest</string>
+    <string name="menu_main_features">Main features</string>
+    <string name="menu_import">Stock in</string>
+    <string name="menu_export">Stock out</string>
+    <string name="menu_import_history">Import history</string>
+    <string name="menu_export_history">Export history</string>
+    <string name="menu_inventory">Inventory</string>
+    <string name="menu_chat_ai">Chat AI</string>
+
+    <string name="settings_title">Settings</string>
+    <string name="settings_language_section_title">Language</string>
+    <string name="settings_language_section_description">Choose the display language for the application.</string>
+    <string name="settings_language_vietnamese_hint">Show the interface in Vietnamese.</string>
+    <string name="settings_language_english_hint">Show the interface in English.</string>
+    <string name="language_vietnamese">Vietnamese</string>
+    <string name="language_english">English</string>
+
+    <string name="login_logo_desc">SATO logo</string>
+    <string name="login_title">WH Management</string>
+    <string name="login_subtitle">Sign in to continue</string>
+    <string name="login_username">Username</string>
+    <string name="login_password">Password</string>
+    <string name="login_action">Sign in</string>
+    <string name="login_user_data_null">User data is null</string>
+    <string name="login_failed">Login failed</string>
+
+    <string name="chat_title">AI Assistant</string>
+    <string name="chat_thinking">AI is thinking...</string>
+    <string name="chat_input_placeholder">Type your question here...</string>
+    <string name="chat_welcome">Hello! I am the AI assistant for Sato Stock. How can I help you with warehouse management?</string>
+    <string name="chat_server_warning">Warning: The AI server is having an issue (Status: %1$s).</string>
+    <string name="chat_connection_error">Connection error: Unable to connect to the AI server. Please check the network or server. (%1$s)</string>
+    <string name="chat_response_error">Error: Unable to receive a response from the AI. (%1$s)</string>
+
+    <string name="import_title">Stock in</string>
+    <string name="import_add_desc">Add</string>
+    <string name="import_empty">No items available</string>
+    <string name="import_dialog_title">Add item</string>
+    <string name="import_product_name">Product name</string>
+    <string name="import_po_code">PO code</string>
+    <string name="import_quantity">Quantity</string>
+    <string name="import_location">Location</string>
+    <string name="import_scan_product_required">Error: Please scan the product QR first!</string>
+    <string name="import_scan_location_required">Error: Please scan the location QR first!</string>
+    <string name="user_id_missing">Error: User ID not found!</string>
+    <string name="label_location">Location: %1$s</string>
+    <string name="label_quantity">Quantity: %1$s %2$s</string>
+    <string name="toast_product_not_found">Product not found</string>
+    <string name="toast_location_not_found">Location not found</string>
+    <string name="toast_import_success">Stock in successful</string>
+    <string name="toast_import_failed">Stock in failed</string>
+
+    <string name="export_title">Stock out</string>
+    <string name="export_empty">Warehouse is empty</string>
+    <string name="export_dialog_title">Export: %1$s</string>
+    <string name="export_product_code">Product code: %1$s</string>
+    <string name="export_location">Location: %1$s</string>
+    <string name="export_stock_quantity">Available quantity: %1$s %2$s</string>
+    <string name="export_quantity_label">Export quantity</string>
+    <string name="export_confirm">Confirm export</string>
+    <string name="export_invalid_quantity">Invalid quantity</string>
+    <string name="export_item_code">Code: %1$s</string>
+    <string name="export_item_stock">In stock: %1$s %2$s</string>
+    <string name="toast_stock_not_found">Stock information not found</string>
+    <string name="toast_export_success">Stock out successful</string>
+    <string name="toast_export_failed">Stock out failed</string>
+
+    <string name="inventory_title">RFID Inventory</string>
+    <string name="inventory_error">Error: %1$s</string>
+    <string name="inventory_unique_tags">Unique tags: %1$d</string>
+    <string name="inventory_total_reads">Total reads: %1$d</string>
+    <string name="inventory_empty">No tags scanned yet</string>
+    <string name="inventory_rssi">RSSI: %1$d dBm</string>
+    <string name="inventory_count">Count: %1$d</string>
+
+    <string name="import_history_title">Import history</string>
+    <string name="import_history_unknown_product">Unknown product</string>
+    <string name="history_code">Code: %1$s</string>
+    <string name="history_location_prefix">Location: </string>
+    <string name="history_import_user">Imported by: %1$s</string>
+    <string name="history_load_error">Failed to load data</string>
+    <string name="history_load_more_error">Failed to load more data</string>
+    <string name="history_import_empty">No import history yet</string>
+
+    <string name="export_history_title">Export history</string>
+    <string name="history_export_user">Exported by: %1$s</string>
+    <string name="history_export_empty">No export history yet</string>
+
+    <string name="stock_list_placeholder">Stock list screen</string>
+</resources>

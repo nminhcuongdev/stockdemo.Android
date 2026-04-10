@@ -1,4 +1,4 @@
-package com.example.stockdemo.feature.stock.presentation
+﻿package com.example.stockdemo.feature.stock.presentation
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -6,6 +6,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.example.stockdemo.R
 
 @Composable
 fun StockScreen(
@@ -15,8 +17,6 @@ fun StockScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Stock List Screen")
+        Text(text = stringResource(R.string.stock_list_placeholder))
     }
 }
-
-

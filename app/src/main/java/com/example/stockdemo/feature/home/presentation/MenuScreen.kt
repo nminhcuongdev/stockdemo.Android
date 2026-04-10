@@ -1,28 +1,66 @@
-package com.example.stockdemo.feature.home.presentation
+﻿package com.example.stockdemo.feature.home.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.stockdemo.core.ui.theme.*
+import com.example.stockdemo.R
+import com.example.stockdemo.core.ui.theme.GreenColor
+import com.example.stockdemo.core.ui.theme.OrangeColor
+import com.example.stockdemo.core.ui.theme.PrimaryColor
+import com.example.stockdemo.core.ui.theme.SecondaryColor
+import com.example.stockdemo.core.ui.theme.StockDemoTheme
 
 @Composable
 fun MenuScreen(
@@ -36,7 +74,7 @@ fun MenuScreen(
     onNavigateToSettings: () -> Unit,
     onLogout: () -> Unit
 ) {
-    val userNameFromStore by userViewModel.userName.collectAsState(initial = "Đang tải...")
+    val userNameFromStore by userViewModel.userName.collectAsState(initial = null)
 
     MenuContent(
         userName = userNameFromStore,
@@ -67,17 +105,20 @@ fun MenuContent(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { 
+                title = {
                     Text(
-                        "QUẢN LÝ KHO", 
+                        text = stringResource(R.string.menu_title),
                         fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 1.sp,
                         fontSize = 20.sp
-                    ) 
+                    )
                 },
                 actions = {
                     IconButton(onClick = onNavigateToSettings) {
-                        Icon(Icons.Default.Settings, contentDescription = "Cài đặt")
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = stringResource(R.string.settings_title)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -109,11 +150,15 @@ fun MenuContent(
                             contentColor = Color.Red
                         ),
                         shape = RoundedCornerShape(12.dp),
-                        border = androidx.compose.foundation.BorderStroke(1.dp, Color.Red.copy(alpha = 0.2f))
+                        border = BorderStroke(1.dp, Color.Red.copy(alpha = 0.2f))
                     ) {
                         Icon(Icons.Default.Logout, contentDescription = null, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Đăng Xuất", fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            text = stringResource(R.string.logout),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
             }
@@ -125,7 +170,6 @@ fun MenuContent(
                 .padding(padding)
                 .background(Color(0xFFF5F7FA))
         ) {
-            // Header Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -137,7 +181,7 @@ fun MenuContent(
                     )
                     .padding(horizontal = 24.dp, vertical = 24.dp)
             ) {
-                Row(
+                androidx.compose.foundation.layout.Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -149,7 +193,7 @@ fun MenuContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Default.Person,
+                            imageVector = Icons.Default.Person,
                             contentDescription = null,
                             modifier = Modifier.size(38.dp),
                             tint = Color.White
@@ -158,12 +202,12 @@ fun MenuContent(
                     Spacer(modifier = Modifier.width(16.dp))
                     Column {
                         Text(
-                            text = "Xin chào,",
+                            text = stringResource(R.string.menu_greeting),
                             fontSize = 14.sp,
                             color = Color.White.copy(alpha = 0.8f)
                         )
                         Text(
-                            text = userName ?: "Khách hàng",
+                            text = userName ?: stringResource(R.string.menu_guest),
                             fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -172,14 +216,13 @@ fun MenuContent(
                 }
             }
 
-            // Dashboard Grid
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
                 Text(
-                    text = "Chức năng chính",
+                    text = stringResource(R.string.menu_main_features),
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF2C3E50),
@@ -195,7 +238,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.ArrowDownward,
-                            title = "Nhập Kho",
+                            title = stringResource(R.string.menu_import),
                             backgroundColor = GreenColor,
                             onClick = onNavigateToImport
                         )
@@ -203,7 +246,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.ArrowUpward,
-                            title = "Xuất Kho",
+                            title = stringResource(R.string.menu_export),
                             backgroundColor = OrangeColor,
                             onClick = onNavigateToExport
                         )
@@ -211,7 +254,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.History,
-                            title = "Lịch Sử Nhập",
+                            title = stringResource(R.string.menu_import_history),
                             backgroundColor = Color(0xFF4CAF50),
                             onClick = onNavigateToImportHistory
                         )
@@ -219,7 +262,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.History,
-                            title = "Lịch Sử Xuất",
+                            title = stringResource(R.string.menu_export_history),
                             backgroundColor = Color(0xFFFF9800),
                             onClick = onNavigateToExportHistory
                         )
@@ -227,7 +270,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.Inventory,
-                            title = "Kiểm Kê",
+                            title = stringResource(R.string.menu_inventory),
                             backgroundColor = PrimaryColor,
                             onClick = onNavigateToInventory
                         )
@@ -235,7 +278,7 @@ fun MenuContent(
                     item {
                         MenuGridCard(
                             icon = Icons.Default.AutoAwesome,
-                            title = "Chat AI",
+                            title = stringResource(R.string.menu_chat_ai),
                             backgroundColor = SecondaryColor,
                             onClick = onNavigateToChatAI
                         )
@@ -299,7 +342,7 @@ fun MenuGridCard(
 fun MenuScreenPreview() {
     StockDemoTheme {
         MenuContent(
-            userName = "Nguyễn Văn A",
+            userName = "Nguyen Van A",
             onNavigateToImport = {},
             onNavigateToExport = {},
             onNavigateToInventory = {},
@@ -311,6 +354,3 @@ fun MenuScreenPreview() {
         )
     }
 }
-
-
-

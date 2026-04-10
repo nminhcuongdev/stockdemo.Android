@@ -1,3 +1,106 @@
-<resources>
+﻿<resources>
     <string name="app_name">StockDemo</string>
+    <string name="back">Quay lại</string>
+    <string name="retry">Thử lại</string>
+    <string name="cancel">Hủy</string>
+    <string name="add">Thêm</string>
+    <string name="delete">Xóa</string>
+    <string name="scan">Quét</string>
+    <string name="stop">Dừng</string>
+    <string name="send">Gửi</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="unknown_error">Lỗi không xác định</string>
+    <string name="na">N/A</string>
+
+    <string name="menu_title">QUẢN LÝ KHO</string>
+    <string name="menu_greeting">Xin chào,</string>
+    <string name="menu_guest">Khách hàng</string>
+    <string name="menu_main_features">Chức năng chính</string>
+    <string name="menu_import">Nhập kho</string>
+    <string name="menu_export">Xuất kho</string>
+    <string name="menu_import_history">Lịch sử nhập</string>
+    <string name="menu_export_history">Lịch sử xuất</string>
+    <string name="menu_inventory">Kiểm kê</string>
+    <string name="menu_chat_ai">Chat AI</string>
+
+    <string name="settings_title">Cài đặt</string>
+    <string name="settings_language_section_title">Ngôn ngữ</string>
+    <string name="settings_language_section_description">Chọn ngôn ngữ hiển thị cho ứng dụng.</string>
+    <string name="settings_language_vietnamese_hint">Hiển thị giao diện bằng tiếng Việt.</string>
+    <string name="settings_language_english_hint">Hiển thị giao diện bằng tiếng Anh.</string>
+    <string name="language_vietnamese">Tiếng Việt</string>
+    <string name="language_english">English</string>
+
+    <string name="login_logo_desc">Logo SATO</string>
+    <string name="login_title">Quản lý kho</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục</string>
+    <string name="login_username">Tên đăng nhập</string>
+    <string name="login_password">Mật khẩu</string>
+    <string name="login_action">Đăng nhập</string>
+    <string name="login_user_data_null">Không có dữ liệu người dùng</string>
+    <string name="login_failed">Đăng nhập thất bại</string>
+
+    <string name="chat_title">Trợ lý AI</string>
+    <string name="chat_thinking">AI đang suy nghĩ...</string>
+    <string name="chat_input_placeholder">Nhập câu hỏi tại đây...</string>
+    <string name="chat_welcome">Xin chào! Tôi là trợ lý AI của Sato Stock. Tôi có thể giúp gì cho bạn về quản lý kho hàng?</string>
+    <string name="chat_server_warning">Cảnh báo: Máy chủ AI đang gặp sự cố (Status: %1$s).</string>
+    <string name="chat_connection_error">Lỗi kết nối: Không thể kết nối tới máy chủ AI. Vui lòng kiểm tra mạng hoặc server. (%1$s)</string>
+    <string name="chat_response_error">Lỗi: Không thể nhận phản hồi từ AI. (%1$s)</string>
+
+    <string name="import_title">Nhập kho</string>
+    <string name="import_add_desc">Thêm</string>
+    <string name="import_empty">Chưa có hàng hóa nào</string>
+    <string name="import_dialog_title">Thêm hàng hóa</string>
+    <string name="import_product_name">Tên hàng hóa</string>
+    <string name="import_po_code">Mã PO</string>
+    <string name="import_quantity">Số lượng</string>
+    <string name="import_location">Vị trí</string>
+    <string name="import_scan_product_required">Lỗi: Vui lòng quét QR hàng trước!</string>
+    <string name="import_scan_location_required">Lỗi: Vui lòng quét QR vị trí trước!</string>
+    <string name="user_id_missing">Lỗi: Không tìm thấy ID người dùng!</string>
+    <string name="label_location">Vị trí: %1$s</string>
+    <string name="label_quantity">Số lượng: %1$s %2$s</string>
+    <string name="toast_product_not_found">Không tìm thấy hàng hóa</string>
+    <string name="toast_location_not_found">Không tìm thấy vị trí</string>
+    <string name="toast_import_success">Nhập kho thành công</string>
+    <string name="toast_import_failed">Nhập kho thất bại</string>
+
+    <string name="export_title">Xuất kho</string>
+    <string name="export_empty">Kho trống</string>
+    <string name="export_dialog_title">Xuất: %1$s</string>
+    <string name="export_product_code">Mã SP: %1$s</string>
+    <string name="export_location">Vị trí: %1$s</string>
+    <string name="export_stock_quantity">Số lượng tồn: %1$s %2$s</string>
+    <string name="export_quantity_label">Số lượng xuất</string>
+    <string name="export_confirm">Xác nhận xuất</string>
+    <string name="export_invalid_quantity">Số lượng không hợp lệ</string>
+    <string name="export_item_code">Mã: %1$s</string>
+    <string name="export_item_stock">Tồn kho: %1$s %2$s</string>
+    <string name="toast_stock_not_found">Không tìm thấy thông tin tồn kho</string>
+    <string name="toast_export_success">Xuất kho thành công</string>
+    <string name="toast_export_failed">Xuất kho thất bại</string>
+
+    <string name="inventory_title">Kiểm kê RFID</string>
+    <string name="inventory_error">Lỗi: %1$s</string>
+    <string name="inventory_unique_tags">Thẻ duy nhất: %1$d</string>
+    <string name="inventory_total_reads">Tổng lượt đọc: %1$d</string>
+    <string name="inventory_empty">Chưa có thẻ nào được quét</string>
+    <string name="inventory_rssi">RSSI: %1$d dBm</string>
+    <string name="inventory_count">Số lần: %1$d</string>
+
+    <string name="import_history_title">Lịch sử nhập kho</string>
+    <string name="import_history_unknown_product">Sản phẩm không xác định</string>
+    <string name="history_code">Mã: %1$s</string>
+    <string name="history_location_prefix">Vị trí: </string>
+    <string name="history_import_user">Người nhập: %1$s</string>
+    <string name="history_load_error">Lỗi tải dữ liệu</string>
+    <string name="history_load_more_error">Lỗi tải thêm dữ liệu</string>
+    <string name="history_import_empty">Chưa có lịch sử nhập</string>
+
+    <string name="export_history_title">Lịch sử xuất kho</string>
+    <string name="history_export_user">Người xuất: %1$s</string>
+    <string name="history_export_empty">Chưa có lịch sử xuất</string>
+
+    <string name="stock_list_placeholder">Màn hình danh sách tồn kho</string>
 </resources>

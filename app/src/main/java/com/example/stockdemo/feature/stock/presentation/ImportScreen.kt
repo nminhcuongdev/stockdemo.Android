@@ -1,34 +1,72 @@
-package com.example.stockdemo.feature.stock.presentation
+﻿package com.example.stockdemo.feature.stock.presentation
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Inventory
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.example.stockdemo.feature.home.presentation.UserViewModel
-import com.example.stockdemo.feature.stock.domain.model.Stock
-import com.example.stockdemo.feature.stock.domain.model.StockInRequest
+import com.example.stockdemo.R
 import com.example.stockdemo.core.ui.theme.GreenColor
 import com.example.stockdemo.core.ui.theme.PrimaryColor
 import com.example.stockdemo.core.ui.theme.StockDemoTheme
 import com.example.stockdemo.core.ui.util.toast
+import com.example.stockdemo.feature.home.presentation.UserViewModel
+import com.example.stockdemo.feature.stock.domain.model.Stock
+import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,21 +79,16 @@ fun ImportScreen(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val userIdFromStore by userViewModel.userId.collectAsState(initial = null)
-
-    // Collect StateFlow thay vì đọc trực tiếp từ ViewModel
     val scannedProduct by viewModel.scannedProduct.collectAsStateWithLifecycle()
     val scannedLocation by viewModel.scannedLocation.collectAsStateWithLifecycle()
 
     var showDialog by remember { mutableStateOf(false) }
 
-    // Toast: collect trên coroutine riêng — không bị block bởi các lệnh khác
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collectLatest { message ->
             context.toast(message)
         }
     }
-
-    // getStocks() chỉ gọi trong init{} của ViewModel, không cần gọi lại ở đây
 
     if (showDialog) {
         SystemBroadcastReceiver("sato") { intent ->
@@ -85,25 +118,28 @@ fun ImportScreen(
             viewModel.clearScannedProduct()
         },
         onConfirmAdd = {
-            if (scannedProduct == null) {
-                context.toast("Lỗi: Vui lòng quét QR hàng trước!")
+            val product = scannedProduct
+            if (product == null) {
+                context.toast(context.getString(R.string.import_scan_product_required))
                 return@ImportContent
             }
-            if (scannedLocation == null) {
-                context.toast("Lỗi: Vui lòng quét QR vị trí trước!")
+            val location = scannedLocation
+            if (location == null) {
+                context.toast(context.getString(R.string.import_scan_location_required))
                 return@ImportContent
             }
-            if (userIdFromStore == null) {
-                context.toast("Lỗi: Không tìm thấy ID người dùng!")
+            val userId = userIdFromStore
+            if (userId == null) {
+                context.toast(context.getString(R.string.user_id_missing))
                 return@ImportContent
             }
 
             val stockInRequest = StockInRequest(
-                locationId = scannedLocation!!.locationId,
-                productId = scannedProduct!!.productId,
-                quantity = scannedProduct!!.quantity,
-                qrCode = scannedProduct!!.qrCode,
-                userId = userIdFromStore!!
+                locationId = location.locationId,
+                productId = product.productId,
+                quantity = product.quantity,
+                qrCode = product.qrCode,
+                userId = userId
             )
             viewModel.stockIn(stockInRequest)
             showDialog = false
@@ -129,10 +165,13 @@ fun ImportContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Nhập Kho") },
+                title = { Text(stringResource(R.string.import_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -147,7 +186,11 @@ fun ImportContent(
                 onClick = onAddClick,
                 containerColor = GreenColor
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Thêm", tint = Color.White)
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.import_add_desc),
+                    tint = Color.White
+                )
             }
         }
     ) { padding ->
@@ -174,13 +217,17 @@ fun ImportContent(
                         verticalArrangement = Arrangement.Center
                     ) {
                         Icon(
-                            Icons.Default.Inventory,
+                            imageVector = Icons.Default.Inventory,
                             contentDescription = null,
                             modifier = Modifier.size(80.dp),
                             tint = Color.Gray
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Text("Chưa có hàng hóa nào", fontSize = 18.sp, color = Color.Gray)
+                        Text(
+                            text = stringResource(R.string.import_empty),
+                            fontSize = 18.sp,
+                            color = Color.Gray
+                        )
                     }
                 }
                 else -> {
@@ -203,13 +250,13 @@ fun ImportContent(
         if (showDialog) {
             AlertDialog(
                 onDismissRequest = onDismissDialog,
-                title = { Text("Thêm Hàng Hóa") },
+                title = { Text(stringResource(R.string.import_dialog_title)) },
                 text = {
                     Column {
                         OutlinedTextField(
                             value = scannedProductName,
                             onValueChange = {},
-                            label = { Text("Tên hàng hóa") },
+                            label = { Text(stringResource(R.string.import_product_name)) },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true
                         )
@@ -217,7 +264,7 @@ fun ImportContent(
                         OutlinedTextField(
                             value = scannedPoNumber,
                             onValueChange = {},
-                            label = { Text("Mã PO") },
+                            label = { Text(stringResource(R.string.import_po_code)) },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true
                         )
@@ -225,7 +272,7 @@ fun ImportContent(
                         OutlinedTextField(
                             value = scannedQuantity,
                             onValueChange = {},
-                            label = { Text("Số lượng") },
+                            label = { Text(stringResource(R.string.import_quantity)) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true
@@ -234,7 +281,7 @@ fun ImportContent(
                         OutlinedTextField(
                             value = scannedLocationName,
                             onValueChange = {},
-                            label = { Text("Vị trí") },
+                            label = { Text(stringResource(R.string.import_location)) },
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true
                         )
@@ -242,12 +289,12 @@ fun ImportContent(
                 },
                 confirmButton = {
                     Button(onClick = onConfirmAdd) {
-                        Text("Thêm")
+                        Text(stringResource(R.string.add))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismissDialog) {
-                        Text("Hủy")
+                        Text(stringResource(R.string.cancel))
                     }
                 }
             )
@@ -296,29 +343,36 @@ fun ItemCard(stock: Stock) {
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = stock.product?.productCode ?: "",
+                    text = stock.product?.productCode.orEmpty(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp
                 )
                 Text(
-                    text = stock.product?.productName ?: "",
+                    text = stock.product?.productName.orEmpty(),
                     fontSize = 14.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "Vị trí: ${stock.location?.locationName}",
+                    text = stringResource(
+                        R.string.label_location,
+                        stock.location?.locationName.orEmpty()
+                    ),
                     fontWeight = FontWeight.Medium,
                     fontSize = 14.sp,
                     color = PrimaryColor
                 )
                 Text(
-                    text = "Số lượng: ${stock.quantity} ${stock.product?.unit}",
+                    text = stringResource(
+                        R.string.label_quantity,
+                        stock.quantity.toString(),
+                        stock.product?.unit.orEmpty()
+                    ),
                     fontSize = 13.sp,
                     color = Color.Gray
                 )
             }
             Icon(
-                Icons.Default.CheckCircle,
+                imageVector = Icons.Default.CheckCircle,
                 contentDescription = null,
                 tint = GreenColor,
                 modifier = Modifier.size(24.dp)
@@ -345,5 +399,3 @@ fun ImportScreenPreview() {
         )
     }
 }
-
-

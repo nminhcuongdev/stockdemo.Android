@@ -1,4 +1,4 @@
-package com.example.stockdemo.feature.auth.presentation.login
+﻿package com.example.stockdemo.feature.auth.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,7 +48,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.foundation.text.KeyboardOptions
 import com.example.stockdemo.R
 import com.example.stockdemo.core.ui.theme.PrimaryColor
 import com.example.stockdemo.feature.home.presentation.UserViewModel
@@ -65,18 +66,13 @@ fun LoginScreen(
 
     val isLoading = state is LoginUiState.Loading
     val errorMessage = (state as? LoginUiState.Error)?.message.orEmpty()
-    val isLoginEnabled = !isLoading &&
-            username.isNotBlank() &&
-            password.isNotBlank()
+    val isLoginEnabled = !isLoading && username.isNotBlank() && password.isNotBlank()
 
     LaunchedEffect(state is LoginUiState.Success) {
         val successState = state as? LoginUiState.Success ?: return@LaunchedEffect
         val user = successState.user
 
-        userViewModel.saveUser(
-            user.fullName,
-            user.userId
-        )
+        userViewModel.saveUser(user.fullName, user.userId)
         onLoginSuccess()
         viewModel.resetState()
     }
@@ -95,7 +91,7 @@ fun LoginScreen(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.satologo),
-                contentDescription = "Logo SATO",
+                contentDescription = stringResource(R.string.login_logo_desc),
                 modifier = Modifier
                     .fillMaxWidth(0.7f)
                     .aspectRatio(2f)
@@ -103,14 +99,14 @@ fun LoginScreen(
             )
 
             Text(
-                text = "Quản Lý Kho",
+                text = stringResource(R.string.login_title),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = PrimaryColor
             )
 
             Text(
-                text = "Đăng nhập để tiếp tục",
+                text = stringResource(R.string.login_subtitle),
                 fontSize = 16.sp,
                 color = Color.Gray
             )
@@ -125,18 +121,13 @@ fun LoginScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(24.dp)
-                ) {
+                Column(modifier = Modifier.padding(24.dp)) {
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
-                        label = { Text("Tên đăng nhập") },
+                        label = { Text(stringResource(R.string.login_username)) },
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = null
-                            )
+                            Icon(imageVector = Icons.Default.Person, contentDescription = null)
                         },
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
@@ -151,17 +142,12 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Mật khẩu") },
+                        label = { Text(stringResource(R.string.login_password)) },
                         leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = null
-                            )
+                            Icon(imageVector = Icons.Default.Lock, contentDescription = null)
                         },
                         trailingIcon = {
-                            IconButton(
-                                onClick = { showPassword = !showPassword }
-                            ) {
+                            IconButton(onClick = { showPassword = !showPassword }) {
                                 Icon(
                                     imageVector = if (showPassword) {
                                         Icons.Default.Visibility
@@ -207,9 +193,7 @@ fun LoginScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = PrimaryColor
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
                     ) {
                         if (isLoading) {
                             CircularProgressIndicator(
@@ -219,7 +203,7 @@ fun LoginScreen(
                             )
                         } else {
                             Text(
-                                text = "Đăng Nhập",
+                                text = stringResource(R.string.login_action),
                                 fontSize = 16.sp,
                                 color = Color.White
                             )
@@ -230,5 +214,3 @@ fun LoginScreen(
         }
     }
 }
-
-

@@ -1,7 +1,19 @@
-package com.example.stockdemo.feature.chat.presentation
+﻿package com.example.stockdemo.feature.chat.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -9,19 +21,37 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.stockdemo.R
 import com.example.stockdemo.core.ui.theme.PrimaryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,10 +64,8 @@ fun ChatAIScreen(
     val messages = viewModel.messages
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isCheckingHealth by viewModel.isCheckingHealth.collectAsStateWithLifecycle()
-    
     val listState = rememberLazyListState()
 
-    // Tự động cuộn xuống cuối danh sách khi có tin nhắn mới
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
             listState.animateScrollToItem(messages.size - 1)
@@ -50,18 +78,22 @@ fun ChatAIScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            Icons.Default.AutoAwesome,
+                            imageVector = Icons.Default.AutoAwesome,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Trợ lý AI", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.chat_title), fontWeight = FontWeight.Bold)
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại", tint = Color.White)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back),
+                            tint = Color.White
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -75,9 +107,8 @@ fun ChatAIScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .background(Color(0xFFF8F9FA)) // Nền màu xám nhạt hiện đại
+                .background(Color(0xFFF8F9FA))
         ) {
-            // Danh sách tin nhắn
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -89,7 +120,12 @@ fun ChatAIScreen(
             ) {
                 if (isCheckingHealth && messages.isEmpty()) {
                     item {
-                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
                             CircularProgressIndicator(color = PrimaryColor)
                         }
                     }
@@ -98,8 +134,7 @@ fun ChatAIScreen(
                 items(messages) { message ->
                     ChatBubble(message)
                 }
-                
-                // Hiển thị trạng thái đang xử lý
+
                 if (isLoading) {
                     item {
                         Row(
@@ -112,13 +147,16 @@ fun ChatAIScreen(
                                 color = PrimaryColor
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("AI đang suy nghĩ...", fontSize = 12.sp, color = Color.Gray)
+                            Text(
+                                text = stringResource(R.string.chat_thinking),
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
                         }
                     }
                 }
             }
 
-            // Thanh nhập liệu phía dưới
             Surface(
                 tonalElevation = 4.dp,
                 shadowElevation = 8.dp,
@@ -135,17 +173,24 @@ fun ChatAIScreen(
                         value = inputText,
                         onValueChange = { inputText = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text("Nhập câu hỏi tại đây...", fontSize = 14.sp) },
+                        placeholder = {
+                            Text(
+                                text = stringResource(R.string.chat_input_placeholder),
+                                fontSize = 14.sp
+                            )
+                        },
                         maxLines = 4,
                         shape = RoundedCornerShape(24.dp),
                         enabled = !isLoading && !isCheckingHealth,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                        keyboardActions = KeyboardActions(onSend = { 
-                            if (inputText.isNotBlank()) {
-                                viewModel.sendMessage(inputText)
-                                inputText = ""
+                        keyboardActions = KeyboardActions(
+                            onSend = {
+                                if (inputText.isNotBlank()) {
+                                    viewModel.sendMessage(inputText)
+                                    inputText = ""
+                                }
                             }
-                        }),
+                        ),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = PrimaryColor,
                             unfocusedBorderColor = Color.LightGray
@@ -153,7 +198,7 @@ fun ChatAIScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
-                        onClick = { 
+                        onClick = {
                             if (inputText.isNotBlank()) {
                                 viewModel.sendMessage(inputText)
                                 inputText = ""
@@ -167,7 +212,10 @@ fun ChatAIScreen(
                         ),
                         modifier = Modifier.size(48.dp)
                     ) {
-                        Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Gửi")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = stringResource(R.string.send)
+                        )
                     }
                 }
             }
@@ -214,6 +262,3 @@ fun ChatBubble(message: ChatUiModel) {
         }
     }
 }
-
-
-

@@ -1,50 +1,80 @@
-package com.example.stockdemo.feature.stock.presentation
+﻿package com.example.stockdemo.feature.stock.presentation
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import com.example.stockdemo.feature.stock.domain.model.RFIDTag
-import com.example.stockdemo.core.ui.theme.PrimaryColor
 import com.cipherlab.rfid.ClResult
 import com.cipherlab.rfid.GeneralString
 import com.cipherlab.rfid.InventoryType
 import com.cipherlab.rfidapi.RfidManager
+import com.example.stockdemo.R
+import com.example.stockdemo.core.ui.theme.PrimaryColor
+import com.example.stockdemo.feature.stock.domain.model.RFIDTag
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InventoryScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-
-    // Quản lý RfidManager
     val rfidManager = remember { RfidManager.InitInstance(context) }
 
-    // State quản lý danh sách thẻ và trạng thái quét
     var tagList by remember { mutableStateOf<List<RFIDTag>>(emptyList()) }
     var isScanning by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var totalReads by remember { mutableStateOf(0) }
 
-    // Đăng ký BroadcastReceiver để nhận dữ liệu RFID
     DisposableEffect(Unit) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
@@ -85,10 +115,13 @@ fun InventoryScreen(onBack: () -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Kiểm kê RFID", fontWeight = FontWeight.Bold) },
+                title = { Text(stringResource(R.string.inventory_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Quay lại")
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back)
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -105,7 +138,6 @@ fun InventoryScreen(onBack: () -> Unit) {
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            // Hàng nút điều khiển
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -127,7 +159,7 @@ fun InventoryScreen(onBack: () -> Unit) {
                 ) {
                     Icon(Icons.Default.PlayArrow, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Quét", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.scan), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -144,7 +176,7 @@ fun InventoryScreen(onBack: () -> Unit) {
                 ) {
                     Icon(Icons.Default.Stop, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Dừng", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.stop), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
 
                 Button(
@@ -159,26 +191,33 @@ fun InventoryScreen(onBack: () -> Unit) {
                 ) {
                     Icon(Icons.Default.Delete, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Xóa", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Text(stringResource(R.string.delete), fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
 
             if (errorMessage != null) {
-                Text(text = "Lỗi: $errorMessage", color = Color.Red, fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp))
+                Text(
+                    text = stringResource(R.string.inventory_error, errorMessage.orEmpty()),
+                    color = Color.Red,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Thông tin tổng quan
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text(
-                    text = "Thẻ duy nhất: ${tagList.size}",
+                    text = stringResource(R.string.inventory_unique_tags, tagList.size),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = PrimaryColor
                 )
                 Text(
-                    text = "Tổng lượt đọc: $totalReads",
+                    text = stringResource(R.string.inventory_total_reads, totalReads),
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
@@ -186,7 +225,6 @@ fun InventoryScreen(onBack: () -> Unit) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Danh sách thẻ
             Card(
                 modifier = Modifier.fillMaxSize(),
                 colors = CardDefaults.cardColors(containerColor = Color.White),
@@ -194,7 +232,11 @@ fun InventoryScreen(onBack: () -> Unit) {
             ) {
                 if (tagList.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Chưa có thẻ nào được quét", color = Color.Gray, fontSize = 14.sp)
+                        Text(
+                            text = stringResource(R.string.inventory_empty),
+                            color = Color.Gray,
+                            fontSize = 14.sp
+                        )
                     }
                 } else {
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
@@ -225,15 +267,30 @@ fun RFIDTagListItem(tag: RFIDTag) {
             )
         },
         supportingContent = {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(text = "RSSI: ${tag.rssi} dBm", fontSize = 12.sp, color = Color.Gray)
-                Text(text = "Số lần: ${tag.count}", fontSize = 12.sp, color = Color.Gray)
-                Text(text = sdf.format(Date(tag.timestamp)), fontSize = 12.sp, color = Color.Gray)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(R.string.inventory_rssi, tag.rssi),
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = stringResource(R.string.inventory_count, tag.count),
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+                Text(
+                    text = sdf.format(Date(tag.timestamp)),
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
             }
         },
         leadingContent = {
             Icon(
-                Icons.Default.PlayArrow,
+                imageVector = Icons.Default.PlayArrow,
                 contentDescription = null,
                 tint = PrimaryColor,
                 modifier = Modifier.size(16.dp)
@@ -241,6 +298,3 @@ fun RFIDTagListItem(tag: RFIDTag) {
         }
     )
 }
-
-
-

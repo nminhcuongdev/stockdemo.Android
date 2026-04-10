@@ -1,25 +1,28 @@
-package com.example.stockdemo.feature.chat.presentation
+﻿package com.example.stockdemo.feature.chat.presentation
 
+import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stockdemo.R
+import com.example.stockdemo.core.common.Resource
 import com.example.stockdemo.feature.chat.domain.model.ChatMessage
 import com.example.stockdemo.feature.chat.domain.model.ChatRequest
 import com.example.stockdemo.feature.chat.domain.usecase.CheckChatHealthUseCase
 import com.example.stockdemo.feature.chat.domain.usecase.SendChatMessageUseCase
-import com.example.stockdemo.core.common.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val checkChatHealthUseCase: CheckChatHealthUseCase,
-    private val sendChatMessageUseCase: SendChatMessageUseCase
+    private val sendChatMessageUseCase: SendChatMessageUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _isCheckingHealth = MutableStateFlow(true)
@@ -42,15 +45,38 @@ class ChatViewModel @Inject constructor(
                     _isCheckingHealth.value = false
                     if (result.data?.status == "ok") {
                         if (messages.isEmpty()) {
-                            messages.add(ChatUiModel("Xin chào! Tôi là trợ lý AI của Sato Stock. Tôi có thể giúp gì cho bạn về quản lý kho hàng?", false))
+                            messages.add(
+                                ChatUiModel(
+                                    text = context.getString(R.string.chat_welcome),
+                                    isUser = false
+                                )
+                            )
                         }
                     } else {
-                        messages.add(ChatUiModel("Cảnh báo: Máy chủ AI đang gặp sự cố (Status: ${result.data?.status}).", false, isError = true))
+                        messages.add(
+                            ChatUiModel(
+                                text = context.getString(
+                                    R.string.chat_server_warning,
+                                    result.data?.status ?: context.getString(R.string.na)
+                                ),
+                                isUser = false,
+                                isError = true
+                            )
+                        )
                     }
                 }
                 is Resource.Error -> {
                     _isCheckingHealth.value = false
-                    messages.add(ChatUiModel("Lỗi kết nối: Không thể kết nối tới máy chủ AI. Vui lòng kiểm tra mạng hoặc server. (${result.message})", false, isError = true))
+                    messages.add(
+                        ChatUiModel(
+                            text = context.getString(
+                                R.string.chat_connection_error,
+                                result.message ?: context.getString(R.string.unknown_error)
+                            ),
+                            isUser = false,
+                            isError = true
+                        )
+                    )
                 }
                 is Resource.Loading -> {
                     _isCheckingHealth.value = true
@@ -82,7 +108,16 @@ class ChatViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _isLoading.value = false
-                    messages.add(ChatUiModel("Lỗi: Không thể nhận phản hồi từ AI. (${result.message})", false, isError = true))
+                    messages.add(
+                        ChatUiModel(
+                            text = context.getString(
+                                R.string.chat_response_error,
+                                result.message ?: context.getString(R.string.unknown_error)
+                            ),
+                            isUser = false,
+                            isError = true
+                        )
+                    )
                 }
                 is Resource.Loading -> {
                     _isLoading.value = true
@@ -91,6 +126,3 @@ class ChatViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 }
-
-
-

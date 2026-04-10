@@ -1,20 +1,17 @@
-package com.example.stockdemo.app.navigation
+ï»¿package com.example.stockdemo.app.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.stockdemo.feature.chat.presentation.ChatAIScreen
-import com.example.stockdemo.feature.chat.presentation.ChatViewModel
 import com.example.stockdemo.feature.auth.presentation.login.LoginScreen
 import com.example.stockdemo.feature.auth.presentation.login.LoginViewModel
+import com.example.stockdemo.feature.chat.presentation.ChatAIScreen
+import com.example.stockdemo.feature.chat.presentation.ChatViewModel
 import com.example.stockdemo.feature.home.presentation.MenuScreen
+import com.example.stockdemo.feature.home.presentation.SettingsScreen
 import com.example.stockdemo.feature.home.presentation.UserViewModel
 import com.example.stockdemo.feature.stock.presentation.ExportHistoryScreen
 import com.example.stockdemo.feature.stock.presentation.ExportHistoryViewModel
@@ -48,7 +45,7 @@ fun AppNavGraph(
                 }
             )
         }
-        
+
         composable(AppDestination.Menu.route) {
             val userViewModel: UserViewModel = hiltViewModel()
             MenuScreen(
@@ -120,17 +117,12 @@ fun AppNavGraph(
             )
         }
 
-        composable(AppDestination.Settings.route) { PlaceholderScreen("Cài d?t") }
+        composable(AppDestination.Settings.route) {
+            val userViewModel: UserViewModel = hiltViewModel()
+            SettingsScreen(
+                userViewModel = userViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
-
-@Composable
-fun PlaceholderScreen(title: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = title)
-    }
-}
-
-
-
-

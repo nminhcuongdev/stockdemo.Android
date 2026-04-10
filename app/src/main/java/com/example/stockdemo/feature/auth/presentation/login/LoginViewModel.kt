@@ -1,21 +1,25 @@
-package com.example.stockdemo.feature.auth.presentation.login
+﻿package com.example.stockdemo.feature.auth.presentation.login
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stockdemo.R
+import com.example.stockdemo.core.common.Resource
 import com.example.stockdemo.feature.auth.domain.model.LoginRequest
 import com.example.stockdemo.feature.auth.domain.usecase.LoginUseCase
-import com.example.stockdemo.core.common.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -29,11 +33,11 @@ class LoginViewModel @Inject constructor(
                     if (result.data != null) {
                         LoginUiState.Success(result.data)
                     } else {
-                        LoginUiState.Error("User data is null")
+                        LoginUiState.Error(context.getString(R.string.login_user_data_null))
                     }
                 }
                 is Resource.Error -> {
-                    LoginUiState.Error(result.message ?: "Login failed")
+                    LoginUiState.Error(result.message ?: context.getString(R.string.login_failed))
                 }
                 is Resource.Loading -> {
                     if (result.isLoading) LoginUiState.Loading else _uiState.value
@@ -46,5 +50,3 @@ class LoginViewModel @Inject constructor(
         _uiState.value = LoginUiState.Idle
     }
 }
-
-
