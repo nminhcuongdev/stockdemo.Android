@@ -3,6 +3,7 @@ package com.example.stockdemo.core.di
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import com.example.stockdemo.BuildConfig
 import com.example.stockdemo.feature.stock.data.local.StockDao
 import com.example.stockdemo.feature.stock.data.local.StockDatabase
 import com.example.stockdemo.feature.auth.data.local.UserPreferences
@@ -51,7 +52,7 @@ object AppModule {
     @Named("StockRetrofit")
     fun provideStockRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.84.30.46:8686/api/")
+            .baseUrl(BuildConfig.STOCK_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -62,7 +63,7 @@ object AppModule {
     @Named("PythonRetrofit")
     fun providePythonRetrofit(client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("http://10.84.30.46:8000/")
+            .baseUrl(BuildConfig.PYTHON_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
