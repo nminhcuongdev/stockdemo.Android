@@ -52,19 +52,26 @@
     <string name="import_add_desc">Add</string>
     <string name="import_empty">No items available</string>
     <string name="import_dialog_title">Add item</string>
+    <string name="import_product_code">Product code</string>
     <string name="import_product_name">Product name</string>
     <string name="import_po_code">PO code</string>
     <string name="import_quantity">Quantity</string>
     <string name="import_location">Location</string>
+    <string name="import_invalid_quantity">Invalid import quantity</string>
     <string name="import_scan_product_required">Error: Please scan the product QR first!</string>
     <string name="import_scan_location_required">Error: Please scan the location QR first!</string>
     <string name="user_id_missing">Error: User ID not found!</string>
     <string name="label_location">Location: %1$s</string>
     <string name="label_quantity">Quantity: %1$s %2$s</string>
     <string name="toast_product_not_found">Product not found</string>
+    <string name="toast_delivery_order_not_found">Delivery order not found in local cache</string>
     <string name="toast_location_not_found">Location not found</string>
     <string name="toast_import_success">Stock in successful</string>
+    <string name="toast_sync_server_success">Synced to server</string>
+    <string name="toast_import_queued">Saved locally and will sync automatically when network is available</string>
+    <string name="toast_export_queued">Saved locally and will sync automatically when network is available</string>
     <string name="toast_import_failed">Stock in failed</string>
+    <string name="product_master_sync_failed">Unable to refresh product master, using cached data</string>
 
     <string name="export_title">Stock out</string>
     <string name="export_empty">Warehouse is empty</string>

@@ -52,19 +52,26 @@
     <string name="import_add_desc">Thêm</string>
     <string name="import_empty">Chưa có hàng hóa nào</string>
     <string name="import_dialog_title">Thêm hàng hóa</string>
+    <string name="import_product_code">Mã sản phẩm</string>
     <string name="import_product_name">Tên hàng hóa</string>
     <string name="import_po_code">Mã PO</string>
     <string name="import_quantity">Số lượng</string>
     <string name="import_location">Vị trí</string>
+    <string name="import_invalid_quantity">Số lượng nhập không hợp lệ</string>
     <string name="import_scan_product_required">Lỗi: Vui lòng quét QR hàng trước!</string>
     <string name="import_scan_location_required">Lỗi: Vui lòng quét QR vị trí trước!</string>
     <string name="user_id_missing">Lỗi: Không tìm thấy ID người dùng!</string>
     <string name="label_location">Vị trí: %1$s</string>
     <string name="label_quantity">Số lượng: %1$s %2$s</string>
     <string name="toast_product_not_found">Không tìm thấy hàng hóa</string>
+    <string name="toast_delivery_order_not_found">Không tìm thấy đơn giao hàng trong dữ liệu cục bộ</string>
     <string name="toast_location_not_found">Không tìm thấy vị trí</string>
     <string name="toast_import_success">Nhập kho thành công</string>
+    <string name="toast_sync_server_success">Đã sync lên server</string>
+    <string name="toast_import_queued">Đã lưu phiếu nhập cục bộ, sẽ tự đồng bộ khi có mạng</string>
+    <string name="toast_export_queued">Đã lưu phiếu xuất cục bộ, sẽ tự đồng bộ khi có mạng</string>
     <string name="toast_import_failed">Nhập kho thất bại</string>
+    <string name="product_master_sync_failed">Không thể cập nhật danh mục sản phẩm, đang dùng dữ liệu đã lưu</string>
 
     <string name="export_title">Xuất kho</string>
     <string name="export_empty">Kho trống</string>

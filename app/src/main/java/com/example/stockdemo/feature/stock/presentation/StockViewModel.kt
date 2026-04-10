@@ -1,4 +1,4 @@
-﻿package com.example.stockdemo.feature.stock.presentation
+package com.example.stockdemo.feature.stock.presentation
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -15,6 +15,7 @@ import com.example.stockdemo.feature.stock.domain.usecase.GetLocationByQrCodeUse
 import com.example.stockdemo.feature.stock.domain.usecase.GetStockByQrCodeUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.GetStocksUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.StockInUseCase
+import com.example.stockdemo.feature.stock.domain.usecase.SyncMasterProductsUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.UpdateQuantityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -37,6 +38,7 @@ class StockViewModel @Inject constructor(
     private val stockInUseCase: StockInUseCase,
     private val getStockByQrCodeUseCase: GetStockByQrCodeUseCase,
     private val updateQuantityUseCase: UpdateQuantityUseCase,
+    private val syncMasterProductsUseCase: SyncMasterProductsUseCase,
     @ApplicationContext private val context: Context
 ) : ViewModel() {
 
@@ -46,8 +48,8 @@ class StockViewModel @Inject constructor(
     private val _toastMessage = MutableSharedFlow<String>()
     val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
 
-    private val _scannedProduct = MutableStateFlow<DeliveryOrder?>(null)
-    val scannedProduct: StateFlow<DeliveryOrder?> = _scannedProduct.asStateFlow()
+    private val _scannedDeliveryOrder = MutableStateFlow<DeliveryOrder?>(null)
+    val scannedDeliveryOrder: StateFlow<DeliveryOrder?> = _scannedDeliveryOrder.asStateFlow()
 
     private val _scannedLocation = MutableStateFlow<Location?>(null)
     val scannedLocation: StateFlow<Location?> = _scannedLocation.asStateFlow()
@@ -56,7 +58,18 @@ class StockViewModel @Inject constructor(
     val scannedStock: StateFlow<Stock?> = _scannedStock.asStateFlow()
 
     init {
+        syncMasterProducts()
         getStocks()
+    }
+
+    fun syncMasterProducts() {
+        syncMasterProductsUseCase().onEach { result ->
+            if (result is Resource.Error) {
+                _toastMessage.emit(
+                    result.message ?: context.getString(R.string.product_master_sync_failed)
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 
     fun getStocks() {
@@ -75,9 +88,7 @@ class StockViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
-                is Resource.Loading -> _state.update {
-                    it.copy(isLoading = result.isLoading)
-                }
+                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }
         }.launchIn(viewModelScope)
     }
@@ -86,12 +97,14 @@ class StockViewModel @Inject constructor(
         getDeliveryOrderByQrCodeUseCase(qrCode).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _scannedProduct.value = result.data
+                    _scannedDeliveryOrder.value = result.data
                     _state.update { it.copy(isLoading = false) }
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message ?: context.getString(R.string.toast_product_not_found))
+                    _toastMessage.emit(
+                        result.message ?: context.getString(R.string.toast_delivery_order_not_found)
+                    )
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }
@@ -134,7 +147,12 @@ class StockViewModel @Inject constructor(
         stockInUseCase(request).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _toastMessage.emit(context.getString(R.string.toast_import_success))
+                    val messageRes = if (result.data != null) {
+                        R.string.toast_sync_server_success
+                    } else {
+                        R.string.toast_export_queued
+                    }
+                    _toastMessage.emit(context.getString(messageRes))
                     getStocks()
                 }
                 is Resource.Error -> {
@@ -163,7 +181,7 @@ class StockViewModel @Inject constructor(
     }
 
     fun clearScannedProduct() {
-        _scannedProduct.value = null
+        _scannedDeliveryOrder.value = null
         _scannedLocation.value = null
     }
 

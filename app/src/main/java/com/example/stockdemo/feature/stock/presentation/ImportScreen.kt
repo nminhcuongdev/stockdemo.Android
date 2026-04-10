@@ -1,4 +1,4 @@
-﻿package com.example.stockdemo.feature.stock.presentation
+package com.example.stockdemo.feature.stock.presentation
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -54,7 +53,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -79,14 +77,21 @@ fun ImportScreen(
     val context = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val userIdFromStore by userViewModel.userId.collectAsState(initial = null)
-    val scannedProduct by viewModel.scannedProduct.collectAsStateWithLifecycle()
+    val scannedDeliveryOrder by viewModel.scannedDeliveryOrder.collectAsStateWithLifecycle()
     val scannedLocation by viewModel.scannedLocation.collectAsStateWithLifecycle()
 
     var showDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        viewModel.syncMasterProducts()
         viewModel.toastMessage.collectLatest { message ->
             context.toast(message)
+        }
+    }
+
+    LaunchedEffect(scannedDeliveryOrder?.deliveryOrderId, scannedLocation?.locationId) {
+        if (scannedDeliveryOrder != null || scannedLocation != null) {
+            showDialog = true
         }
     }
 
@@ -95,7 +100,7 @@ fun ImportScreen(
             val scannedCode = intent?.getStringExtra("data")
             scannedCode?.let {
                 if (isLocationCode(it)) {
-                    val code = it.split(";").getOrNull(1) ?: ""
+                    val code = it.split(";").getOrNull(1) ?: it
                     viewModel.getLocation(code)
                 } else {
                     viewModel.getDeliveryOrderByQrCode(it)
@@ -108,18 +113,18 @@ fun ImportScreen(
         state = state,
         onBack = onBack,
         onAddClick = { showDialog = true },
-        scannedProductName = scannedProduct?.product?.productName ?: "",
-        scannedPoNumber = scannedProduct?.poNumber ?: "",
-        scannedQuantity = scannedProduct?.quantity?.toString() ?: "",
-        scannedLocationName = scannedLocation?.locationName ?: "",
+        scannedProductName = scannedDeliveryOrder?.product?.productName.orEmpty(),
+        scannedPoNumber = scannedDeliveryOrder?.poNumber.orEmpty(),
+        scannedQuantity = scannedDeliveryOrder?.quantity?.toString().orEmpty(),
+        scannedLocationName = scannedLocation?.locationName.orEmpty(),
         showDialog = showDialog,
         onDismissDialog = {
             showDialog = false
             viewModel.clearScannedProduct()
         },
         onConfirmAdd = {
-            val product = scannedProduct
-            if (product == null) {
+            val deliveryOrder = scannedDeliveryOrder
+            if (deliveryOrder == null) {
                 context.toast(context.getString(R.string.import_scan_product_required))
                 return@ImportContent
             }
@@ -136,9 +141,9 @@ fun ImportScreen(
 
             val stockInRequest = StockInRequest(
                 locationId = location.locationId,
-                productId = product.productId,
-                quantity = product.quantity,
-                qrCode = product.qrCode,
+                productId = deliveryOrder.productId,
+                quantity = deliveryOrder.quantity,
+                qrCode = deliveryOrder.qrCode,
                 userId = userId
             )
             viewModel.stockIn(stockInRequest)
@@ -273,7 +278,6 @@ fun ImportContent(
                             value = scannedQuantity,
                             onValueChange = {},
                             label = { Text(stringResource(R.string.import_quantity)) },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth(),
                             readOnly = true
                         )

@@ -88,7 +88,7 @@ object AppModule {
             app,
             StockDatabase::class.java,
             "stock_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @Provides
@@ -99,8 +99,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideStockRepository(api: ApiService): StockRepository {
-        return StockRepositoryImpl(api)
+    fun provideStockRepository(
+        @ApplicationContext context: Context,
+        api: ApiService,
+        stockDao: StockDao
+    ): StockRepository {
+        return StockRepositoryImpl(context, api, stockDao)
     }
 
     @Provides

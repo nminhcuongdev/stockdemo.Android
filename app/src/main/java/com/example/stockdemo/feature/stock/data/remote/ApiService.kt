@@ -21,6 +21,15 @@ interface ApiService {
     @GET("Stocks")
     suspend fun getAllStocks(): BaseResponse<List<StockDto>>
 
+    @GET("Products")
+    suspend fun getProducts(): BaseResponse<List<ProductDto>>
+
+    @GET("DeliveryOrders")
+    suspend fun getDeliveryOrders(): BaseResponse<List<DeliveryOrderDto>>
+
+    @GET("Locations")
+    suspend fun getLocations(): BaseResponse<List<LocationDto>>
+
     @GET("Stocks/qrcode/{qrCode}")
     suspend fun getStockByQrCode(
         @Path("qrCode", encoded = true) qrCode: String
