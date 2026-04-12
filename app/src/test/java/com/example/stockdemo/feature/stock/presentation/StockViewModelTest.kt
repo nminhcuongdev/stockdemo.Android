@@ -8,6 +8,7 @@ import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Product
 import com.example.stockdemo.feature.stock.domain.model.Stock
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
+import com.example.stockdemo.feature.stock.domain.model.StockMutationResult
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import com.example.stockdemo.feature.stock.domain.usecase.GetDeliveryOrderByQrCodeUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.GetLocationByQrCodeUseCase
@@ -107,8 +108,8 @@ class StockViewModelTest {
         every { getDeliveryOrderByQrCodeUseCase(any()) } returns flowOf(Resource.Success(sampleDeliveryOrder()))
         every { getLocationByQrCodeUseCase(any()) } returns flowOf(Resource.Success(sampleLocation()))
         every { getStockByQrCodeUseCase(any()) } returns flowOf(Resource.Success(sampleStock()))
-        every { stockInUseCase(any()) } returns flowOf(Resource.Success(sampleStock()))
-        every { updateQuantityUseCase(any(), any()) } returns flowOf(Resource.Success(sampleStock()))
+        every { stockInUseCase(any()) } returns flowOf(Resource.Success(StockMutationResult.Synced(sampleStock())))
+        every { updateQuantityUseCase(any(), any()) } returns flowOf(Resource.Success(StockMutationResult.Synced(sampleStock())))
 
         return StockViewModel(
             getStocksUseCase,
@@ -117,8 +118,7 @@ class StockViewModelTest {
             stockInUseCase,
             getStockByQrCodeUseCase,
             updateQuantityUseCase,
-            syncMasterProductsUseCase,
-            context
+            syncMasterProductsUseCase
         )
     }
 
@@ -139,7 +139,9 @@ class StockViewModelTest {
     fun `stockIn success emits synced message and refreshes stocks`() = runTest {
         val viewModel = createViewModel()
         val messages = mutableListOf<String>()
-        val job = backgroundScope.launch { viewModel.toastMessage.collect { messages.add(it) } }
+        val job = backgroundScope.launch {
+            viewModel.toastMessage.collect { messages.add(it.asString(context)) }
+        }
 
         advanceUntilIdle()
 
@@ -162,14 +164,44 @@ class StockViewModelTest {
     }
 
     @Test
-    fun `updateQuantity success with null data emits queued message`() = runTest {
+    fun `stockIn queued emits import queued message`() = runTest {
         val viewModel = createViewModel()
         val messages = mutableListOf<String>()
-        val job = backgroundScope.launch { viewModel.toastMessage.collect { messages.add(it) } }
+        val job = backgroundScope.launch {
+            viewModel.toastMessage.collect { messages.add(it.asString(context)) }
+        }
 
         advanceUntilIdle()
 
-        every { updateQuantityUseCase(any(), any()) } returns flowOf(Resource.Success(null))
+        every { stockInUseCase(any()) } returns flowOf(Resource.Success(StockMutationResult.Queued))
+
+        viewModel.stockIn(
+            StockInRequest(
+                locationId = 1,
+                productId = 17,
+                qrCode = "QR-DO-001",
+                quantity = 20,
+                userId = 99
+            )
+        )
+
+        advanceUntilIdle()
+
+        assertTrue(messages.contains("Import queued"))
+        job.cancel()
+    }
+
+    @Test
+    fun `updateQuantity queued emits queued message`() = runTest {
+        val viewModel = createViewModel()
+        val messages = mutableListOf<String>()
+        val job = backgroundScope.launch {
+            viewModel.toastMessage.collect { messages.add(it.asString(context)) }
+        }
+
+        advanceUntilIdle()
+
+        every { updateQuantityUseCase(any(), any()) } returns flowOf(Resource.Success(StockMutationResult.Queued))
 
         viewModel.updateQuantity(
             id = 10,

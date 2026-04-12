@@ -4,10 +4,13 @@ import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import com.example.stockdemo.BuildConfig
+import com.example.stockdemo.core.network.AuthInterceptor
 import com.example.stockdemo.feature.stock.data.local.StockDao
 import com.example.stockdemo.feature.stock.data.local.StockDatabase
+import com.example.stockdemo.feature.stock.data.local.StockLocalDataSource
 import com.example.stockdemo.feature.auth.data.local.UserPreferences
 import com.example.stockdemo.feature.stock.data.remote.ApiService
+import com.example.stockdemo.feature.stock.data.remote.StockRemoteDataSource
 import com.example.stockdemo.feature.chat.data.remote.PythonApiService
 import com.example.stockdemo.feature.chat.data.repository.ChatRepositoryImpl
 import com.example.stockdemo.feature.stock.data.repository.StockRepositoryImpl
@@ -15,6 +18,7 @@ import com.example.stockdemo.feature.auth.data.repository.UserRepositoryImpl
 import com.example.stockdemo.feature.chat.domain.repository.ChatRepository
 import com.example.stockdemo.feature.stock.domain.repository.StockRepository
 import com.example.stockdemo.feature.auth.domain.repository.UserRepository
+import com.example.stockdemo.feature.stock.sync.StockSyncCoordinator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,7 +45,30 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(logging: HttpLoggingInterceptor): OkHttpClient {
+    fun provideAuthInterceptor(userPreferences: UserPreferences): AuthInterceptor {
+        return AuthInterceptor(
+            userPreferences = userPreferences,
+            protectedBaseUrl = BuildConfig.STOCK_BASE_URL
+        )
+    }
+
+    @Provides
+    @Singleton
+    @Named("StockOkHttpClient")
+    fun provideStockOkHttpClient(
+        authInterceptor: AuthInterceptor,
+        logging: HttpLoggingInterceptor
+    ): OkHttpClient {
+        return OkHttpClient.Builder()
+            .addInterceptor(authInterceptor)
+            .addInterceptor(logging)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    @Named("PythonOkHttpClient")
+    fun providePythonOkHttpClient(logging: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(logging)
             .build()
@@ -50,7 +77,7 @@ object AppModule {
     @Provides
     @Singleton
     @Named("StockRetrofit")
-    fun provideStockRetrofit(client: OkHttpClient): Retrofit {
+    fun provideStockRetrofit(@Named("StockOkHttpClient") client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.STOCK_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -61,7 +88,7 @@ object AppModule {
     @Provides
     @Singleton
     @Named("PythonRetrofit")
-    fun providePythonRetrofit(client: OkHttpClient): Retrofit {
+    fun providePythonRetrofit(@Named("PythonOkHttpClient") client: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .baseUrl(BuildConfig.PYTHON_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
@@ -100,17 +127,20 @@ object AppModule {
     @Provides
     @Singleton
     fun provideStockRepository(
-        @ApplicationContext context: Context,
-        api: ApiService,
-        stockDao: StockDao
+        localDataSource: StockLocalDataSource,
+        remoteDataSource: StockRemoteDataSource,
+        syncCoordinator: StockSyncCoordinator
     ): StockRepository {
-        return StockRepositoryImpl(context, api, stockDao)
+        return StockRepositoryImpl(localDataSource, remoteDataSource, syncCoordinator)
     }
 
     @Provides
     @Singleton
-    fun provideUserRepository(api: ApiService): UserRepository {
-        return UserRepositoryImpl(api)
+    fun provideUserRepository(
+        api: ApiService,
+        userPreferences: UserPreferences
+    ): UserRepository {
+        return UserRepositoryImpl(api, userPreferences)
     }
 
     @Provides

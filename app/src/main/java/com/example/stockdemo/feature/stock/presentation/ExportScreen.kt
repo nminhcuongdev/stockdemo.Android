@@ -80,7 +80,7 @@ fun ExportScreen(
 
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collectLatest { message ->
-            context.toast(message)
+            context.toast(message.asString(context))
         }
     }
 
@@ -130,7 +130,7 @@ fun ExportScreen(
                 }
                 state.error != null && state.stocks.isEmpty() -> {
                     Text(
-                        text = state.error ?: stringResource(R.string.unknown_error),
+                        text = state.error?.asString(context) ?: stringResource(R.string.unknown_error),
                         color = Color.Red,
                         modifier = Modifier.align(Alignment.Center)
                     )

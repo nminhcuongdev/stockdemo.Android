@@ -1,14 +1,16 @@
 package com.example.stockdemo.feature.stock.presentation
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.stockdemo.R
 import com.example.stockdemo.core.common.Resource
+import com.example.stockdemo.core.ui.UiText
+import com.example.stockdemo.core.ui.asUiText
 import com.example.stockdemo.feature.stock.domain.model.DeliveryOrder
 import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Stock
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
+import com.example.stockdemo.feature.stock.domain.model.StockMutationResult
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import com.example.stockdemo.feature.stock.domain.usecase.GetDeliveryOrderByQrCodeUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.GetLocationByQrCodeUseCase
@@ -18,7 +20,6 @@ import com.example.stockdemo.feature.stock.domain.usecase.StockInUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.SyncMasterProductsUseCase
 import com.example.stockdemo.feature.stock.domain.usecase.UpdateQuantityUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,15 +39,14 @@ class StockViewModel @Inject constructor(
     private val stockInUseCase: StockInUseCase,
     private val getStockByQrCodeUseCase: GetStockByQrCodeUseCase,
     private val updateQuantityUseCase: UpdateQuantityUseCase,
-    private val syncMasterProductsUseCase: SyncMasterProductsUseCase,
-    @ApplicationContext private val context: Context
+    private val syncMasterProductsUseCase: SyncMasterProductsUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(StockUiState())
     val state: StateFlow<StockUiState> = _state.asStateFlow()
 
-    private val _toastMessage = MutableSharedFlow<String>()
-    val toastMessage: SharedFlow<String> = _toastMessage.asSharedFlow()
+    private val _toastMessage = MutableSharedFlow<UiText>()
+    val toastMessage: SharedFlow<UiText> = _toastMessage.asSharedFlow()
 
     private val _scannedDeliveryOrder = MutableStateFlow<DeliveryOrder?>(null)
     val scannedDeliveryOrder: StateFlow<DeliveryOrder?> = _scannedDeliveryOrder.asStateFlow()
@@ -66,7 +66,7 @@ class StockViewModel @Inject constructor(
         syncMasterProductsUseCase().onEach { result ->
             if (result is Resource.Error) {
                 _toastMessage.emit(
-                    result.message ?: context.getString(R.string.product_master_sync_failed)
+                    result.message.asUiText(R.string.product_master_sync_failed)
                 )
             }
         }.launchIn(viewModelScope)
@@ -84,7 +84,7 @@ class StockViewModel @Inject constructor(
                 }
                 is Resource.Error -> _state.update {
                     it.copy(
-                        error = result.message ?: context.getString(R.string.unknown_error),
+                        error = result.message.asUiText(R.string.unknown_error),
                         isLoading = false
                     )
                 }
@@ -103,7 +103,7 @@ class StockViewModel @Inject constructor(
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
                     _toastMessage.emit(
-                        result.message ?: context.getString(R.string.toast_delivery_order_not_found)
+                        result.message.asUiText(R.string.toast_delivery_order_not_found)
                     )
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
@@ -120,7 +120,7 @@ class StockViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message ?: context.getString(R.string.toast_stock_not_found))
+                    _toastMessage.emit(result.message.asUiText(R.string.toast_stock_not_found))
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }
@@ -136,7 +136,7 @@ class StockViewModel @Inject constructor(
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message ?: context.getString(R.string.toast_location_not_found))
+                    _toastMessage.emit(result.message.asUiText(R.string.toast_location_not_found))
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }
@@ -147,17 +147,17 @@ class StockViewModel @Inject constructor(
         stockInUseCase(request).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    val messageRes = if (result.data != null) {
-                        R.string.toast_sync_server_success
-                    } else {
-                        R.string.toast_export_queued
+                    val messageRes = when (result.data) {
+                        is StockMutationResult.Synced -> R.string.toast_import_success
+                        StockMutationResult.Queued -> R.string.toast_import_queued
+                        null -> R.string.toast_import_failed
                     }
-                    _toastMessage.emit(context.getString(messageRes))
+                    _toastMessage.emit(UiText.StringResource(messageRes))
                     getStocks()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message ?: context.getString(R.string.toast_import_failed))
+                    _toastMessage.emit(result.message.asUiText(R.string.toast_import_failed))
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }
@@ -168,12 +168,17 @@ class StockViewModel @Inject constructor(
         updateQuantityUseCase(id, updateQuantityRequest).onEach { result ->
             when (result) {
                 is Resource.Success -> {
-                    _toastMessage.emit(context.getString(R.string.toast_export_success))
+                    val messageRes = when (result.data) {
+                        is StockMutationResult.Synced -> R.string.toast_export_success
+                        StockMutationResult.Queued -> R.string.toast_export_queued
+                        null -> R.string.toast_export_failed
+                    }
+                    _toastMessage.emit(UiText.StringResource(messageRes))
                     getStocks()
                 }
                 is Resource.Error -> {
                     _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message ?: context.getString(R.string.toast_export_failed))
+                    _toastMessage.emit(result.message.asUiText(R.string.toast_export_failed))
                 }
                 is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
             }

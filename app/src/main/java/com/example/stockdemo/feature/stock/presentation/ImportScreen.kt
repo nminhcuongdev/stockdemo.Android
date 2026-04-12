@@ -85,7 +85,7 @@ fun ImportScreen(
     LaunchedEffect(Unit) {
         viewModel.syncMasterProducts()
         viewModel.toastMessage.collectLatest { message ->
-            context.toast(message)
+            context.toast(message.asString(context))
         }
     }
 
@@ -167,6 +167,8 @@ fun ImportContent(
     onDismissDialog: () -> Unit,
     onConfirmAdd: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -210,7 +212,7 @@ fun ImportContent(
                 }
                 state.error != null && state.stocks.isEmpty() -> {
                     Text(
-                        text = state.error,
+                        text = state.error.asString(context),
                         color = Color.Red,
                         modifier = Modifier.align(Alignment.Center)
                     )

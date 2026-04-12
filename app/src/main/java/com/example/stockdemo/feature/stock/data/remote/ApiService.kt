@@ -2,7 +2,7 @@ package com.example.stockdemo.feature.stock.data.remote
 
 import com.example.stockdemo.core.network.model.BaseResponse
 import com.example.stockdemo.core.network.model.PagedResponse
-import com.example.stockdemo.feature.auth.data.repository.UserDto
+import com.example.stockdemo.feature.auth.data.repository.LoginResponseDto
 import com.example.stockdemo.feature.auth.domain.model.LoginRequest
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
@@ -16,7 +16,7 @@ import retrofit2.http.Query
 interface ApiService {
 
     @POST("Users/login")
-    suspend fun login(@Body login: LoginRequest): BaseResponse<UserDto>
+    suspend fun login(@Body login: LoginRequest): BaseResponse<LoginResponseDto>
 
     @GET("Stocks")
     suspend fun getAllStocks(): BaseResponse<List<StockDto>>

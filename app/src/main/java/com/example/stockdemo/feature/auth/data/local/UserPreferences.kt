@@ -21,6 +21,7 @@ class UserPreferences @Inject constructor(private val context: Context) {
 
     private val USER_NAME_KEY = stringPreferencesKey("user_name")
     private val USER_ID_KEY = intPreferencesKey("user_id")
+    private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
     private val LANGUAGE_CODE_KEY = stringPreferencesKey("language_code")
 
     val userName: Flow<String?> = context.dataStore.data.map { preferences ->
@@ -29,6 +30,10 @@ class UserPreferences @Inject constructor(private val context: Context) {
 
     val userId: Flow<Int?> = context.dataStore.data.map { preferences ->
         preferences[USER_ID_KEY]
+    }
+
+    val accessToken: Flow<String?> = context.dataStore.data.map { preferences ->
+        preferences[ACCESS_TOKEN_KEY]
     }
 
     val languageCode: Flow<String> = context.dataStore.data.map { preferences ->
@@ -42,6 +47,12 @@ class UserPreferences @Inject constructor(private val context: Context) {
         }
     }
 
+    suspend fun saveAccessToken(token: String) {
+        context.dataStore.edit { preferences ->
+            preferences[ACCESS_TOKEN_KEY] = token
+        }
+    }
+
     suspend fun saveLanguageCode(languageCode: String) {
         context.dataStore.edit { preferences ->
             preferences[LANGUAGE_CODE_KEY] = languageCode
@@ -50,6 +61,10 @@ class UserPreferences @Inject constructor(private val context: Context) {
 
     suspend fun getSavedLanguageCode(): String {
         return languageCode.first()
+    }
+
+    suspend fun getSavedAccessToken(): String? {
+        return accessToken.first()
     }
 
     suspend fun clear() {

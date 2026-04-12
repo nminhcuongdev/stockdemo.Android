@@ -3,13 +3,13 @@ package com.example.stockdemo.feature.stock.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.example.stockdemo.feature.stock.data.mapper.toDomain
-import com.example.stockdemo.feature.stock.data.remote.ApiService
+import com.example.stockdemo.feature.stock.data.remote.StockRemoteDataSource
 import com.example.stockdemo.feature.stock.domain.model.StockOut
 import retrofit2.HttpException
 import java.io.IOException
 
 class StockOutPagingSource(
-    private val api: ApiService
+    private val remoteDataSource: StockRemoteDataSource
 ) : PagingSource<Int, StockOut>() {
 
     override fun getRefreshKey(state: PagingState<Int, StockOut>): Int? {
@@ -22,7 +22,7 @@ class StockOutPagingSource(
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, StockOut> {
         val position = params.key ?: 1
         return try {
-            val response = api.getStockOutHistory(
+            val response = remoteDataSource.getStockOutHistory(
                 pageNumber = position,
                 pageSize = params.loadSize
             )

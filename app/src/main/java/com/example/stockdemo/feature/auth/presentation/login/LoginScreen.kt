@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -58,6 +59,7 @@ fun LoginScreen(
     userViewModel: UserViewModel,
     onLoginSuccess: () -> Unit
 ) {
+    val context = LocalContext.current
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var showPassword by rememberSaveable { mutableStateOf(false) }
@@ -65,7 +67,7 @@ fun LoginScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     val isLoading = state is LoginUiState.Loading
-    val errorMessage = (state as? LoginUiState.Error)?.message.orEmpty()
+    val errorMessage = (state as? LoginUiState.Error)?.message?.asString(context).orEmpty()
     val isLoginEnabled = !isLoading && username.isNotBlank() && password.isNotBlank()
 
     LaunchedEffect(state is LoginUiState.Success) {

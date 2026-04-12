@@ -1,14 +1,14 @@
 ﻿package com.example.stockdemo.feature.auth.presentation.login
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.stockdemo.R
 import com.example.stockdemo.core.common.Resource
+import com.example.stockdemo.core.ui.UiText
+import com.example.stockdemo.core.ui.asUiText
 import com.example.stockdemo.feature.auth.domain.model.LoginRequest
 import com.example.stockdemo.feature.auth.domain.usecase.LoginUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +18,7 @@ import kotlinx.coroutines.flow.onEach
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
-    @ApplicationContext private val context: Context
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LoginUiState>(LoginUiState.Idle)
@@ -33,11 +32,11 @@ class LoginViewModel @Inject constructor(
                     if (result.data != null) {
                         LoginUiState.Success(result.data)
                     } else {
-                        LoginUiState.Error(context.getString(R.string.login_user_data_null))
+                        LoginUiState.Error(UiText.StringResource(R.string.login_user_data_null))
                     }
                 }
                 is Resource.Error -> {
-                    LoginUiState.Error(result.message ?: context.getString(R.string.login_failed))
+                    LoginUiState.Error(result.message.asUiText(R.string.login_failed))
                 }
                 is Resource.Loading -> {
                     if (result.isLoading) LoginUiState.Loading else _uiState.value

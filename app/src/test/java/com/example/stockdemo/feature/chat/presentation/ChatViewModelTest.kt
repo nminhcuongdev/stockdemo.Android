@@ -43,13 +43,13 @@ class ChatViewModelTest {
             Resource.Success(HealthResponse(status = "ok", version = "1.0"))
         )
 
-        val viewModel = ChatViewModel(checkChatHealthUseCase, sendChatMessageUseCase, context)
+        val viewModel = ChatViewModel(checkChatHealthUseCase, sendChatMessageUseCase)
 
         advanceUntilIdle()
 
         assertFalse(viewModel.isCheckingHealth.value)
         assertEquals(1, viewModel.messages.size)
-        assertEquals("Welcome to Sato Stock", viewModel.messages.first().text)
+        assertEquals("Welcome to Sato Stock", viewModel.messages.first().text.asString(context))
         assertFalse(viewModel.messages.first().isError)
     }
 
@@ -62,17 +62,17 @@ class ChatViewModelTest {
             Resource.Success(ChatResponse(answer = "Use offline cache first"))
         )
 
-        val viewModel = ChatViewModel(checkChatHealthUseCase, sendChatMessageUseCase, context)
+        val viewModel = ChatViewModel(checkChatHealthUseCase, sendChatMessageUseCase)
         advanceUntilIdle()
 
         viewModel.sendMessage("How does offline sync work?")
         advanceUntilIdle()
 
         assertEquals(3, viewModel.messages.size)
-        assertEquals("Welcome to Sato Stock", viewModel.messages[0].text)
-        assertEquals("How does offline sync work?", viewModel.messages[1].text)
+        assertEquals("Welcome to Sato Stock", viewModel.messages[0].text.asString(context))
+        assertEquals("How does offline sync work?", viewModel.messages[1].text.asString(context))
         assertTrue(viewModel.messages[1].isUser)
-        assertEquals("Use offline cache first", viewModel.messages[2].text)
+        assertEquals("Use offline cache first", viewModel.messages[2].text.asString(context))
         assertFalse(viewModel.messages[2].isUser)
         assertFalse(viewModel.messages[2].isError)
     }

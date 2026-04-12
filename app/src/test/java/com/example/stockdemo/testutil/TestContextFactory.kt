@@ -10,5 +10,11 @@ fun mockContext(strings: Map<Int, String> = emptyMap()): Context {
         val id = firstArg<Int>()
         strings[id] ?: "string-$id"
     }
+    every { context.getString(any(), *anyVararg()) } answers {
+        val id = firstArg<Int>()
+        val template = strings[id] ?: "string-$id"
+        val args = args.drop(1).toTypedArray()
+        String.format(template, *args)
+    }
     return context
 }

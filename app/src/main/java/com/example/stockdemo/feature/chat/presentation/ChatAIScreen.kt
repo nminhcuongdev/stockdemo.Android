@@ -45,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -60,6 +61,7 @@ fun ChatAIScreen(
     viewModel: ChatViewModel,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     var inputText by remember { mutableStateOf("") }
     val messages = viewModel.messages
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
@@ -132,7 +134,7 @@ fun ChatAIScreen(
                 }
 
                 items(messages) { message ->
-                    ChatBubble(message)
+                    ChatBubble(message = message, messageText = message.text.asString(context))
                 }
 
                 if (isLoading) {
@@ -224,7 +226,7 @@ fun ChatAIScreen(
 }
 
 @Composable
-fun ChatBubble(message: ChatUiModel) {
+fun ChatBubble(message: ChatUiModel, messageText: String) {
     val alignment = if (message.isUser) Alignment.End else Alignment.Start
     val bubbleColor = when {
         message.isUser -> PrimaryColor
@@ -253,7 +255,7 @@ fun ChatBubble(message: ChatUiModel) {
             shadowElevation = 1.dp
         ) {
             Text(
-                text = message.text,
+                text = messageText,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),
                 color = textColor,
                 fontSize = 15.sp,
