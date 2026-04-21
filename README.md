@@ -48,12 +48,21 @@ com.example.stockdemo/
 *   Android SDK 24 (Minimum SDK)
 
 ### API Configuration
-The application connects to two different backend systems. You can modify the server IP addresses in `app/build.gradle.kts`:
+The application connects to two different backend systems and uses Gradle product flavors to separate environments:
 
-```kotlin
-buildConfigField("String", "STOCK_BASE_URL", "\"http://10.84.30.46:8686/api/\"")
-buildConfigField("String", "PYTHON_BASE_URL", "\"http://10.84.30.46:8000/\"")
+- `dev`: local/intranet backend addresses for development
+- `prod`: production backend placeholders for release builds
+
+Edit the URLs in `gradle.properties` if you need to point the app to a different environment:
+
+```properties
+stockdemo.dev.stockBaseUrl=http://10.84.30.46:8686/api/
+stockdemo.dev.pythonBaseUrl=http://10.84.30.46:8000/
+stockdemo.prod.stockBaseUrl=https://api.example.com/
+stockdemo.prod.pythonBaseUrl=https://python-api.example.com/
 ```
+
+To run the app from Android Studio, choose the variant you want, for example `devDebug` or `prodDebug`.
 
 ## 🏗 Build & Run
 

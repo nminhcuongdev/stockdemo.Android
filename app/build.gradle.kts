@@ -15,10 +15,38 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "STOCK_BASE_URL", "\"http://10.84.30.46:8686/api/\"")
-        buildConfigField("String", "PYTHON_BASE_URL", "\"http://10.84.30.46:8000/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            buildConfigField(
+                "String",
+                "STOCK_BASE_URL",
+                "\"${providers.gradleProperty("stockdemo.dev.stockBaseUrl").get()}\""
+            )
+            buildConfigField(
+                "String",
+                "PYTHON_BASE_URL",
+                "\"${providers.gradleProperty("stockdemo.dev.pythonBaseUrl").get()}\""
+            )
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField(
+                "String",
+                "STOCK_BASE_URL",
+                "\"${providers.gradleProperty("stockdemo.prod.stockBaseUrl").get()}\""
+            )
+            buildConfigField(
+                "String",
+                "PYTHON_BASE_URL",
+                "\"${providers.gradleProperty("stockdemo.prod.pythonBaseUrl").get()}\""
+            )
+        }
     }
 
     buildTypes {
