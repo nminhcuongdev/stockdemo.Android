@@ -45,10 +45,23 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAuthInterceptor(userPreferences: UserPreferences): AuthInterceptor {
+    @Named("StockBaseUrl")
+    fun provideStockBaseUrl(): String = BuildConfig.STOCK_BASE_URL
+
+    @Provides
+    @Singleton
+    @Named("PythonBaseUrl")
+    fun providePythonBaseUrl(): String = BuildConfig.PYTHON_BASE_URL
+
+    @Provides
+    @Singleton
+    fun provideAuthInterceptor(
+        userPreferences: UserPreferences,
+        @Named("StockBaseUrl") protectedBaseUrl: String
+    ): AuthInterceptor {
         return AuthInterceptor(
             userPreferences = userPreferences,
-            protectedBaseUrl = BuildConfig.STOCK_BASE_URL
+            protectedBaseUrl = protectedBaseUrl
         )
     }
 
@@ -77,9 +90,12 @@ object AppModule {
     @Provides
     @Singleton
     @Named("StockRetrofit")
-    fun provideStockRetrofit(@Named("StockOkHttpClient") client: OkHttpClient): Retrofit {
+    fun provideStockRetrofit(
+        @Named("StockOkHttpClient") client: OkHttpClient,
+        @Named("StockBaseUrl") baseUrl: String
+    ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.STOCK_BASE_URL)
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()
@@ -88,9 +104,12 @@ object AppModule {
     @Provides
     @Singleton
     @Named("PythonRetrofit")
-    fun providePythonRetrofit(@Named("PythonOkHttpClient") client: OkHttpClient): Retrofit {
+    fun providePythonRetrofit(
+        @Named("PythonOkHttpClient") client: OkHttpClient,
+        @Named("PythonBaseUrl") baseUrl: String
+    ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.PYTHON_BASE_URL)
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .client(client)
             .build()

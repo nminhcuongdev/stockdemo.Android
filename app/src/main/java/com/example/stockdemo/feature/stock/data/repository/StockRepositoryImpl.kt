@@ -5,12 +5,14 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.stockdemo.core.common.Resource
+import com.example.stockdemo.core.network.model.BaseResponse
 import com.example.stockdemo.feature.stock.data.local.StockLocalDataSource
 import com.example.stockdemo.feature.stock.data.mapper.toDomain
 import com.example.stockdemo.feature.stock.data.mapper.toEntity
 import com.example.stockdemo.feature.stock.data.paging.StockInPagingSource
 import com.example.stockdemo.feature.stock.data.paging.StockOutPagingSource
 import com.example.stockdemo.feature.stock.data.remote.StockRemoteDataSource
+import com.example.stockdemo.feature.stock.data.remote.StockDto
 import com.example.stockdemo.feature.stock.domain.model.DeliveryOrder
 import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Product
@@ -39,16 +41,16 @@ class StockRepositoryImpl(
     }
 
     override fun getAllStocks(): Flow<Resource<List<Stock>>> = flow {
-        emit(Resource.Loading())
+        emitLoading()
         val cachedStocks = localDataSource.getCachedStocks()
 
         if (cachedStocks.isNotEmpty()) {
             emit(Resource.Success(cachedStocks))
         }
 
-        if (!syncCoordinator.isNetworkAvailable()) {
+        if (!isNetworkAvailable()) {
             if (cachedStocks.isEmpty()) {
-                emit(Resource.Error("No cached stock data available offline"))
+                emitError("No cached stock data available offline")
             }
             return@flow
         }
@@ -56,12 +58,10 @@ class StockRepositoryImpl(
         try {
             val response = remoteDataSource.getAllStocks()
             if (response.success && response.data != null) {
-                localDataSource.cacheProducts(response.data.mapNotNull { it.product }.map { it.toEntity() })
-                localDataSource.cacheLocations(response.data.mapNotNull { it.location }.map { it.toEntity() })
-                localDataSource.cacheStocks(response.data.map { it.toEntity() })
+                cacheStockPayload(response.data)
                 emit(Resource.Success(response.data.map { it.toDomain() }))
             } else if (cachedStocks.isEmpty()) {
-                emit(Resource.Error(response.message ?: "Failed to load stocks"))
+                emitError(response.message ?: "Failed to load stocks")
             }
         } catch (e: Exception) {
             if (cachedStocks.isEmpty()) {
@@ -71,7 +71,7 @@ class StockRepositoryImpl(
     }
 
     override fun syncMasterProducts(): Flow<Resource<Unit>> = flow {
-        emit(Resource.Loading())
+        emitLoading()
         try {
             val productResponse = remoteDataSource.getProducts()
             val locationResponse = remoteDataSource.getLocations()
@@ -106,71 +106,50 @@ class StockRepositoryImpl(
     }
 
     override fun getProductByQrCode(qrCode: String): Flow<Resource<Product>> = flow {
-        emit(Resource.Loading())
+        emitLoading()
         val product = localDataSource.getProductByCodes(productCodeCandidates(qrCode))
 
         if (product != null) {
             emit(Resource.Success(product))
         } else {
-            emit(Resource.Error("Product not found in local master data"))
+            emitError("Product not found in local master data")
         }
     }
 
     override fun getStockByQrCode(qrCode: String): Flow<Resource<Stock>> = flow {
-        emit(Resource.Loading())
-        val cachedStock = localDataSource.getStockByQrCode(qrCode)
-        if (cachedStock != null) {
-            emit(Resource.Success(cachedStock))
-            if (!syncCoordinator.isNetworkAvailable()) {
-                return@flow
-            }
-        }
-
-        try {
-            val response = remoteDataSource.getStockByQrCode(qrCode)
-            if (response.success && response.data != null) {
-                response.data.product?.let { localDataSource.cacheProduct(it.toEntity()) }
-                response.data.location?.let { localDataSource.cacheLocation(it.toEntity()) }
-                localDataSource.cacheStocks(listOf(response.data.toEntity()))
-                emit(Resource.Success(response.data.toDomain()))
-            } else if (cachedStock == null) {
-                emit(Resource.Error(response.message ?: "Stock not found"))
-            }
-        } catch (e: Exception) {
-            if (cachedStock == null) {
-                handleException(e)
-            }
-        }
+        emitLoading()
+        emitCachedThenFetch(
+            cachedValue = localDataSource.getStockByQrCode(qrCode),
+            fetchRemote = { remoteDataSource.getStockByQrCode(qrCode) },
+            onRemoteSuccess = { stockDto ->
+                cacheStockPayload(listOf(stockDto))
+                stockDto.toDomain()
+            },
+            emptyRemoteMessage = "Stock not found"
+        )
     }
 
     override fun getDeliveryOrderByQrCode(qrCode: String): Flow<Resource<DeliveryOrder>> = flow {
-        emit(Resource.Loading())
+        emitLoading()
         val order = localDataSource.getDeliveryOrderByQrCode(qrCode)
         if (order != null) {
             emit(Resource.Success(order))
         } else {
-            emit(Resource.Error("Delivery order not found in local cache"))
+            emitError("Delivery order not found in local cache")
         }
     }
 
     override fun stockIn(stockInRequest: StockInRequest): Flow<Resource<StockMutationResult>> = flow {
-        emit(Resource.Loading())
+        emitLoading()
         Log.d(TAG, "stockIn() called for qrCode=${stockInRequest.qrCode}")
 
-        if (syncCoordinator.isNetworkAvailable()) {
+        if (isNetworkAvailable()) {
             try {
                 Log.d(TAG, "stockIn() network available, calling API directly")
                 val response = remoteDataSource.stockIn(stockInRequest)
                 if (response.success) {
                     Log.d(TAG, "stockIn() API success, syncing immediately")
-                    val syncedStock = response.data?.toDomain() ?: Stock(
-                        stockId = -1,
-                        productId = stockInRequest.productId,
-                        locationId = stockInRequest.locationId,
-                        quantity = stockInRequest.quantity,
-                        qrCode = stockInRequest.qrCode,
-                        lastUpdated = null
-                    )
+                    val syncedStock = response.data?.toDomain() ?: fallbackSyncedStock(stockInRequest)
                     emit(Resource.Success(StockMutationResult.Synced(syncedStock)))
                     return@flow
                 } else {
@@ -191,12 +170,12 @@ class StockRepositoryImpl(
         id: Int,
         updateQuantityRequest: UpdateQuantityRequest
     ): Flow<Resource<StockMutationResult>> = flow {
-        emit(Resource.Loading())
-        if (syncCoordinator.isNetworkAvailable()) {
+        emitLoading()
+        if (isNetworkAvailable()) {
             try {
                 val response = remoteDataSource.updateQuantity(id, updateQuantityRequest)
                 if (response.success && response.data != null) {
-                    localDataSource.cacheStocks(listOf(response.data.toEntity()))
+                    cacheStockPayload(listOf(response.data))
                     emit(Resource.Success(StockMutationResult.Synced(response.data.toDomain())))
                     return@flow
                 }
@@ -213,28 +192,16 @@ class StockRepositoryImpl(
     }
 
     override fun getLocationByQrCode(qrCode: String): Flow<Resource<Location>> = flow {
-        emit(Resource.Loading())
-        val cachedLocation = localDataSource.getLocationByQrCode(qrCode)
-        if (cachedLocation != null) {
-            emit(Resource.Success(cachedLocation))
-            if (!syncCoordinator.isNetworkAvailable()) {
-                return@flow
-            }
-        }
-
-        try {
-            val response = remoteDataSource.getLocationByQrCode(qrCode)
-            if (response.success && response.data != null) {
-                localDataSource.cacheLocation(response.data.toEntity())
-                emit(Resource.Success(response.data.toDomain()))
-            } else if (cachedLocation == null) {
-                emit(Resource.Error("Location not found in local master data"))
-            }
-        } catch (e: Exception) {
-            if (cachedLocation == null) {
-                handleException(e)
-            }
-        }
+        emitLoading()
+        emitCachedThenFetch(
+            cachedValue = localDataSource.getLocationByQrCode(qrCode),
+            fetchRemote = { remoteDataSource.getLocationByQrCode(qrCode) },
+            onRemoteSuccess = { locationDto ->
+                localDataSource.cacheLocation(locationDto.toEntity())
+                locationDto.toDomain()
+            },
+            emptyRemoteMessage = "Location not found in local master data"
+        )
     }
 
     override fun getStockInHistory(pageSize: Int): Flow<PagingData<StockIn>> {
@@ -253,6 +220,61 @@ class StockRepositoryImpl(
 
     override suspend fun syncPendingStockIns() {
         syncCoordinator.syncPendingStockIns()
+    }
+
+    private fun isNetworkAvailable(): Boolean = syncCoordinator.isNetworkAvailable()
+
+    private suspend fun cacheStockPayload(stocks: List<StockDto>) {
+        localDataSource.cacheProducts(stocks.mapNotNull { it.product }.map { it.toEntity() })
+        localDataSource.cacheLocations(stocks.mapNotNull { it.location }.map { it.toEntity() })
+        localDataSource.cacheStocks(stocks.map { it.toEntity() })
+    }
+
+    private fun fallbackSyncedStock(stockInRequest: StockInRequest): Stock = Stock(
+        stockId = -1,
+        productId = stockInRequest.productId,
+        locationId = stockInRequest.locationId,
+        quantity = stockInRequest.quantity,
+        qrCode = stockInRequest.qrCode,
+        lastUpdated = null
+    )
+
+    private suspend fun <T> FlowCollector<Resource<T>>.emitLoading() {
+        emit(Resource.Loading())
+    }
+
+    private suspend fun <T> FlowCollector<Resource<T>>.emitError(message: String) {
+        emit(Resource.Error(message))
+    }
+
+    private suspend fun <Remote : Any, Domain : Any> FlowCollector<Resource<Domain>>.emitCachedThenFetch(
+        cachedValue: Domain?,
+        fetchRemote: suspend () -> BaseResponse<Remote>,
+        onRemoteSuccess: suspend (Remote) -> Domain,
+        emptyRemoteMessage: String
+    ) {
+        if (cachedValue != null) {
+            emit(Resource.Success(cachedValue))
+            if (!isNetworkAvailable()) {
+                return
+            }
+        } else if (!isNetworkAvailable()) {
+            emitError("Network unavailable")
+            return
+        }
+
+        try {
+            val response = fetchRemote()
+            if (response.success && response.data != null) {
+                emit(Resource.Success(onRemoteSuccess(response.data)))
+            } else if (cachedValue == null) {
+                emitError(response.message ?: emptyRemoteMessage)
+            }
+        } catch (e: Exception) {
+            if (cachedValue == null) {
+                handleException(e)
+            }
+        }
     }
 
     private suspend fun <T> FlowCollector<Resource<T>>.handleException(e: Exception) {

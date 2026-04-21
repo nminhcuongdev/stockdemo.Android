@@ -58,7 +58,9 @@ class StockLocalDataSource @Inject constructor(
     }
 
     suspend fun cacheLocations(locations: List<LocationEntity>) {
-        locations.forEach { stockDao.insertLocation(it) }
+        if (locations.isNotEmpty()) {
+            stockDao.insertLocations(locations)
+        }
     }
 
     suspend fun replaceDeliveryOrders(items: List<DeliveryOrderEntity>) {

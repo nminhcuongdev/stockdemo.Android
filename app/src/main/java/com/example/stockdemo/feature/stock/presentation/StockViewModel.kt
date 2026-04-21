@@ -23,6 +23,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -63,126 +64,133 @@ class StockViewModel @Inject constructor(
     }
 
     fun syncMasterProducts() {
-        syncMasterProductsUseCase().onEach { result ->
-            if (result is Resource.Error) {
-                _toastMessage.emit(
-                    result.message.asUiText(R.string.product_master_sync_failed)
-                )
+        collectResource(
+            syncMasterProductsUseCase(),
+            onError = { message ->
+                _toastMessage.emit(message.asUiText(R.string.product_master_sync_failed))
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun getStocks() {
-        getStocksUseCase().onEach { result ->
-            when (result) {
-                is Resource.Success -> _state.update {
+        collectResource(
+            getStocksUseCase(),
+            onSuccess = { stocks ->
+                _state.update {
                     it.copy(
-                        stocks = result.data ?: emptyList(),
+                        stocks = stocks ?: emptyList(),
                         isLoading = false,
                         error = null
                     )
                 }
-                is Resource.Error -> _state.update {
+            },
+            onError = { message ->
+                _state.update {
                     it.copy(
-                        error = result.message.asUiText(R.string.unknown_error),
+                        error = message.asUiText(R.string.unknown_error),
                         isLoading = false
                     )
                 }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun getDeliveryOrderByQrCode(qrCode: String) {
-        getDeliveryOrderByQrCodeUseCase(qrCode).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _scannedDeliveryOrder.value = result.data
-                    _state.update { it.copy(isLoading = false) }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(
-                        result.message.asUiText(R.string.toast_delivery_order_not_found)
-                    )
-                }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+        collectResource(
+            getDeliveryOrderByQrCodeUseCase(qrCode),
+            onSuccess = { deliveryOrder ->
+                _scannedDeliveryOrder.value = deliveryOrder
+                _state.update { it.copy(isLoading = false) }
+            },
+            onError = { message ->
+                _state.update { it.copy(isLoading = false) }
+                _toastMessage.emit(message.asUiText(R.string.toast_delivery_order_not_found))
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun getStockByQrCode(qrCode: String) {
-        getStockByQrCodeUseCase(qrCode).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _scannedStock.value = result.data
-                    _state.update { it.copy(isLoading = false) }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message.asUiText(R.string.toast_stock_not_found))
-                }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+        collectResource(
+            getStockByQrCodeUseCase(qrCode),
+            onSuccess = { stock ->
+                _scannedStock.value = stock
+                _state.update { it.copy(isLoading = false) }
+            },
+            onError = { message ->
+                _state.update { it.copy(isLoading = false) }
+                _toastMessage.emit(message.asUiText(R.string.toast_stock_not_found))
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun getLocation(code: String) {
-        getLocationByQrCodeUseCase(code).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    _scannedLocation.value = result.data
-                    _state.update { it.copy(isLoading = false) }
-                }
-                is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message.asUiText(R.string.toast_location_not_found))
-                }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+        collectResource(
+            getLocationByQrCodeUseCase(code),
+            onSuccess = { location ->
+                _scannedLocation.value = location
+                _state.update { it.copy(isLoading = false) }
+            },
+            onError = { message ->
+                _state.update { it.copy(isLoading = false) }
+                _toastMessage.emit(message.asUiText(R.string.toast_location_not_found))
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun stockIn(request: StockInRequest) {
-        stockInUseCase(request).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    val messageRes = when (result.data) {
-                        is StockMutationResult.Synced -> R.string.toast_import_success
-                        StockMutationResult.Queued -> R.string.toast_import_queued
-                        null -> R.string.toast_import_failed
-                    }
-                    _toastMessage.emit(UiText.StringResource(messageRes))
-                    getStocks()
+        collectResource(
+            stockInUseCase(request),
+            onSuccess = { mutationResult ->
+                val messageRes = when (mutationResult) {
+                    is StockMutationResult.Synced -> R.string.toast_import_success
+                    StockMutationResult.Queued -> R.string.toast_import_queued
+                    null -> R.string.toast_import_failed
                 }
-                is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message.asUiText(R.string.toast_import_failed))
-                }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+                _toastMessage.emit(UiText.StringResource(messageRes))
+                getStocks()
+            },
+            onError = { message ->
+                _state.update { it.copy(isLoading = false) }
+                _toastMessage.emit(message.asUiText(R.string.toast_import_failed))
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun updateQuantity(id: Int, updateQuantityRequest: UpdateQuantityRequest) {
-        updateQuantityUseCase(id, updateQuantityRequest).onEach { result ->
-            when (result) {
-                is Resource.Success -> {
-                    val messageRes = when (result.data) {
-                        is StockMutationResult.Synced -> R.string.toast_export_success
-                        StockMutationResult.Queued -> R.string.toast_export_queued
-                        null -> R.string.toast_export_failed
-                    }
-                    _toastMessage.emit(UiText.StringResource(messageRes))
-                    getStocks()
+        collectResource(
+            updateQuantityUseCase(id, updateQuantityRequest),
+            onSuccess = { mutationResult ->
+                val messageRes = when (mutationResult) {
+                    is StockMutationResult.Synced -> R.string.toast_export_success
+                    StockMutationResult.Queued -> R.string.toast_export_queued
+                    null -> R.string.toast_export_failed
                 }
-                is Resource.Error -> {
-                    _state.update { it.copy(isLoading = false) }
-                    _toastMessage.emit(result.message.asUiText(R.string.toast_export_failed))
-                }
-                is Resource.Loading -> _state.update { it.copy(isLoading = result.isLoading) }
+                _toastMessage.emit(UiText.StringResource(messageRes))
+                getStocks()
+            },
+            onError = { message ->
+                _state.update { it.copy(isLoading = false) }
+                _toastMessage.emit(message.asUiText(R.string.toast_export_failed))
+            },
+            onLoading = { isLoading ->
+                _state.update { it.copy(isLoading = isLoading) }
             }
-        }.launchIn(viewModelScope)
+        )
     }
 
     fun clearScannedProduct() {
@@ -192,5 +200,20 @@ class StockViewModel @Inject constructor(
 
     fun clearScannedStock() {
         _scannedStock.value = null
+    }
+
+    private fun <T> collectResource(
+        flow: Flow<Resource<T>>,
+        onSuccess: suspend (T?) -> Unit = {},
+        onError: suspend (String?) -> Unit = {},
+        onLoading: suspend (Boolean) -> Unit = {}
+    ) {
+        flow.onEach { result ->
+            when (result) {
+                is Resource.Success -> onSuccess(result.data)
+                is Resource.Error -> onError(result.message)
+                is Resource.Loading -> onLoading(result.isLoading)
+            }
+        }.launchIn(viewModelScope)
     }
 }
