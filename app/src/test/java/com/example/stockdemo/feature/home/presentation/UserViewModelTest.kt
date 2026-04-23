@@ -22,6 +22,13 @@ class UserViewModelTest {
 
     private val userPreferences: UserPreferences = mockk(relaxed = true)
 
+    private fun createViewModel(): UserViewModel {
+        every { userPreferences.userName } returns flowOf(null)
+        every { userPreferences.userId } returns flowOf(null)
+        every { userPreferences.languageCode } returns flowOf("vi")
+        return UserViewModel(userPreferences)
+    }
+
     @Test
     fun `exposes user flows from preferences`() = runTest {
         every { userPreferences.userName } returns flowOf("Alice")
@@ -36,21 +43,35 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `save user update language and logout delegate to preferences`() = runTest {
-        every { userPreferences.userName } returns flowOf(null)
-        every { userPreferences.userId } returns flowOf(null)
-        every { userPreferences.languageCode } returns flowOf("vi")
-
-        val viewModel = UserViewModel(userPreferences)
+    fun `saveUser delegates to preferences`() = runTest {
+        val viewModel = createViewModel()
 
         viewModel.saveUser("Bob", 7)
+
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { userPreferences.saveUser("Bob", 7) }
+    }
+
+    @Test
+    fun `updateLanguage delegates to preferences`() = runTest {
+        val viewModel = createViewModel()
+
         viewModel.updateLanguage("en")
+
+        advanceUntilIdle()
+
+        coVerify(exactly = 1) { userPreferences.saveLanguageCode("en") }
+    }
+
+    @Test
+    fun `logout delegates to preferences clear`() = runTest {
+        val viewModel = createViewModel()
+
         viewModel.logout()
 
         advanceUntilIdle()
 
-        coVerify { userPreferences.saveUser("Bob", 7) }
-        coVerify { userPreferences.saveLanguageCode("en") }
-        coVerify { userPreferences.clear() }
+        coVerify(exactly = 1) { userPreferences.clear() }
     }
 }
