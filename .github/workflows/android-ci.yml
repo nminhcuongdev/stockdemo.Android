@@ -44,3 +44,19 @@ jobs:
 
       - name: Build debug APK
         run: ./gradlew assembleDevDebug --stacktrace
+
+      - name: Upload dev Debug APK
+        uses: actions/upload-artifact/@v7
+        with:
+          name: stockDemo-dev-apk
+          path: app/build/outputs/apk/dev/debug/*.apk
+          retention-days: 7
+
+      - name: Upload lint report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: lint-report
+          path: app/build/reports/lint-results-devDebug.html
+          retention-days: 7
+
