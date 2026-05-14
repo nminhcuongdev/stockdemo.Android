@@ -7,7 +7,7 @@ on:
       - develop
 jobs:
   build:
-    name: Build
+    name: Build, Test and Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -28,13 +28,13 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
+        run: ./gradlew testDevDebugUnitTest
 
       - name: Run lint
-        run: ./gradlew lintDebug
+        run: ./gradlew lintDevDebug
 
       - name: Build debug APK
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDevDebug
 
 
 
