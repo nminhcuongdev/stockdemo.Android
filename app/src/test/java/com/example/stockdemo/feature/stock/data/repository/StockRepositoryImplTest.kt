@@ -10,13 +10,16 @@ import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import com.example.stockdemo.feature.stock.domain.model.StockMutationResult
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import com.example.stockdemo.feature.stock.sync.StockSyncCoordinator
+import android.util.Log
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -27,6 +30,13 @@ class StockRepositoryImplTest {
     private val localDataSource: StockLocalDataSource = mockk()
     private val remoteDataSource: StockRemoteDataSource = mockk()
     private val syncCoordinator: StockSyncCoordinator = mockk(relaxed = true)
+
+    @Before
+    fun setUp() {
+        mockkStatic(Log::class)
+        every { Log.d(any(), any<String>()) } returns 0
+        every { Log.d(any(), any<String>(), any()) } returns 0
+    }
 
     private fun createRepository(): StockRepositoryImpl {
         return StockRepositoryImpl(localDataSource, remoteDataSource, syncCoordinator)

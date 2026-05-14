@@ -5,36 +5,42 @@ on:
     branches:
       - main
       - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build, Test and Lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout source code
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: set up SDK
+      - name: Set up JDK
         uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Set up gradle
+      - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
         with:
           cache-provider: basic
-      - name: make gradlew executable
+
+      - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Run unit tests
-        run: ./gradlew testDevDebugUnitTest
+        run: ./gradlew test --stacktrace
 
       - name: Run lint
-        run: ./gradlew lintDevDebug
+        run: ./gradlew lintDevDebug --stacktrace
 
       - name: Build debug APK
-        run: ./gradlew assembleDevDebug
-
-
-
+        run: ./gradlew assembleDevDebug --stacktrace

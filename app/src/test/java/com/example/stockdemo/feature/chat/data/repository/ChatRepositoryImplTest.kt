@@ -75,7 +75,7 @@ class ChatRepositoryImplTest {
         assertEquals(2, results.size)
         assertTrue(results[1] is Resource.Error)
         val error = results[1] as Resource.Error
-        assertEquals("Lá»—i káº¿t ná»‘i server Python", error.message)
+        assertEquals("Lỗi kết nối server Python", error.message)
     }
 
     @Test

@@ -81,7 +81,7 @@ class UserRepositoryImplTest {
         assertEquals(2, results.size)
         assertTrue(results[1] is Resource.Error)
         val error = results[1] as Resource.Error
-        assertEquals("Pháº£n há»“i Ä‘Äƒng nháº­p khÃ´ng cÃ³ access token", error.message)
+        assertEquals("Phản hồi đăng nhập không có access token", error.message)
         coVerify(exactly = 0) { userPreferences.saveAccessToken(any()) }
         coVerify(exactly = 0) { userPreferences.saveUser(any(), any()) }
     }
