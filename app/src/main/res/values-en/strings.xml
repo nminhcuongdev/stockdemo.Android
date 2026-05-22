@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="app_name">StockDemo</string>
     <string name="back">Back</string>
     <string name="retry">Retry</string>
@@ -31,7 +31,7 @@
     <string name="language_vietnamese">Vietnamese</string>
     <string name="language_english">English</string>
 
-    <string name="login_logo_desc">SATO logo</string>
+    <string name="login_logo_desc">MICI logo</string>
     <string name="login_title">WH Management</string>
     <string name="login_subtitle">Sign in to continue</string>
     <string name="login_username">Username</string>
@@ -43,7 +43,7 @@
     <string name="chat_title">AI Assistant</string>
     <string name="chat_thinking">AI is thinking...</string>
     <string name="chat_input_placeholder">Type your question here...</string>
-    <string name="chat_welcome">Hello! I am the AI assistant for Sato Stock. How can I help you with warehouse management?</string>
+    <string name="chat_welcome">Hello! I am the AI assistant for Mici Stock. How can I help you with warehouse management?</string>
     <string name="chat_server_warning">Warning: The AI server is having an issue (Status: %1$s).</string>
     <string name="chat_connection_error">Connection error: Unable to connect to the AI server. Please check the network or server. (%1$s)</string>
     <string name="chat_response_error">Error: Unable to receive a response from the AI. (%1$s)</string>

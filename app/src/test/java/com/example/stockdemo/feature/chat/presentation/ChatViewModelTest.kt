@@ -34,7 +34,7 @@ class ChatViewModelTest {
     private val sendChatMessageUseCase: SendChatMessageUseCase = mockk()
     private val context: Context = mockContext(
         mapOf(
-            R.string.chat_welcome to "Welcome to Sato Stock",
+            R.string.chat_welcome to "Welcome to Mici Stock",
             R.string.chat_server_warning to "Warning: AI server issue (Status: %1\$s).",
             R.string.chat_connection_error to "Connection error (%1\$s)",
             R.string.chat_response_error to "Response error (%1\$s)",
@@ -57,7 +57,7 @@ class ChatViewModelTest {
 
         assertFalse(viewModel.isCheckingHealth.value)
         assertEquals(1, viewModel.messages.size)
-        assertEquals("Welcome to Sato Stock", viewModel.messages.first().text.asString(context))
+        assertEquals("Welcome to Mici Stock", viewModel.messages.first().text.asString(context))
         assertFalse(viewModel.messages.first().isError)
     }
 
@@ -75,7 +75,7 @@ class ChatViewModelTest {
         advanceUntilIdle()
 
         assertEquals(3, viewModel.messages.size)
-        assertEquals("Welcome to Sato Stock", viewModel.messages[0].text.asString(context))
+        assertEquals("Welcome to Mici Stock", viewModel.messages[0].text.asString(context))
         assertEquals("How does offline sync work?", viewModel.messages[1].text.asString(context))
         assertTrue(viewModel.messages[1].isUser)
         assertEquals("Use offline cache first", viewModel.messages[2].text.asString(context))

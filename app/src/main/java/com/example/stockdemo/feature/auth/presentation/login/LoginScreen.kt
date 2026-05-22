@@ -1,4 +1,4 @@
-﻿package com.example.stockdemo.feature.auth.presentation.login
+package com.example.stockdemo.feature.auth.presentation.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -92,7 +92,7 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Image(
-                painter = painterResource(id = R.drawable.satologo),
+                painter = painterResource(id = R.drawable.micilogo),
                 contentDescription = stringResource(R.string.login_logo_desc),
                 modifier = Modifier
                     .fillMaxWidth(0.7f)

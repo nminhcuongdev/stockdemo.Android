@@ -96,7 +96,7 @@ fun ImportScreen(
     }
 
     if (showDialog) {
-        SystemBroadcastReceiver("sato") { intent ->
+        SystemBroadcastReceiver("mici") { intent ->
             val scannedCode = intent?.getStringExtra("data")
             scannedCode?.let {
                 if (isLocationCode(it)) {

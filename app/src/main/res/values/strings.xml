@@ -1,4 +1,4 @@
-﻿<resources>
+<resources>
     <string name="app_name">StockDemo</string>
     <string name="back">Quay lại</string>
     <string name="retry">Thử lại</string>
@@ -31,7 +31,7 @@
     <string name="language_vietnamese">Tiếng Việt</string>
     <string name="language_english">English</string>
 
-    <string name="login_logo_desc">Logo SATO</string>
+    <string name="login_logo_desc">Logo MICI</string>
     <string name="login_title">Quản lý kho</string>
     <string name="login_subtitle">Đăng nhập để tiếp tục</string>
     <string name="login_username">Tên đăng nhập</string>
@@ -43,7 +43,7 @@
     <string name="chat_title">Trợ lý AI</string>
     <string name="chat_thinking">AI đang suy nghĩ...</string>
     <string name="chat_input_placeholder">Nhập câu hỏi tại đây...</string>
-    <string name="chat_welcome">Xin chào! Tôi là trợ lý AI của Sato Stock. Tôi có thể giúp gì cho bạn về quản lý kho hàng?</string>
+    <string name="chat_welcome">Xin chào! Tôi là trợ lý AI của Mici Stock. Tôi có thể giúp gì cho bạn về quản lý kho hàng?</string>
     <string name="chat_server_warning">Cảnh báo: Máy chủ AI đang gặp sự cố (Status: %1$s).</string>
     <string name="chat_connection_error">Lỗi kết nối: Không thể kết nối tới máy chủ AI. Vui lòng kiểm tra mạng hoặc server. (%1$s)</string>
     <string name="chat_response_error">Lỗi: Không thể nhận phản hồi từ AI. (%1$s)</string>

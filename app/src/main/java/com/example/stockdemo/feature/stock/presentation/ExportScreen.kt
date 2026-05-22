@@ -1,4 +1,4 @@
-﻿package com.example.stockdemo.feature.stock.presentation
+package com.example.stockdemo.feature.stock.presentation
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -93,7 +93,7 @@ fun ExportScreen(
     }
 
     if (!showDialog) {
-        SystemBroadcastReceiver("sato") { intent ->
+        SystemBroadcastReceiver("mici") { intent ->
             val scannedCode = intent?.getStringExtra("data")
             scannedCode?.let { viewModel.getStockByQrCode(it) }
         }
