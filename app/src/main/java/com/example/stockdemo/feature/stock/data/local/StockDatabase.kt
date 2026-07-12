@@ -13,7 +13,7 @@ import androidx.room.RoomDatabase
         DeliveryOrderEntity::class
     ],
     version = 4,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class StockDatabase : RoomDatabase() {
     abstract val stockDao: StockDao

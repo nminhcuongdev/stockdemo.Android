@@ -36,6 +36,8 @@ class UserPreferences @Inject constructor(private val context: Context) {
         preferences[ACCESS_TOKEN_KEY]
     }
 
+    val isLoggedIn: Flow<Boolean> = accessToken.map { !it.isNullOrBlank() }
+
     val languageCode: Flow<String> = context.dataStore.data.map { preferences ->
         preferences[LANGUAGE_CODE_KEY] ?: DEFAULT_LANGUAGE_CODE
     }

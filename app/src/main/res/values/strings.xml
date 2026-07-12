@@ -22,6 +22,65 @@
     <string name="menu_export_history">Lịch sử xuất</string>
     <string name="menu_inventory">Kiểm kê</string>
     <string name="menu_chat_ai">Chat AI</string>
+    <string name="menu_transfer">Chuyển kho</string>
+
+    <string name="transfer_title">Chuyển kho</string>
+    <string name="transfer_source">Tồn kho nguồn</string>
+    <string name="transfer_select_source">Chọn tồn kho cần chuyển</string>
+    <string name="transfer_target_location">Vị trí đích</string>
+    <string name="transfer_select_location">Chọn vị trí đích</string>
+    <string name="transfer_quantity">Số lượng chuyển</string>
+    <string name="transfer_available">Tồn hiện có: %1$d</string>
+    <string name="transfer_submit">Chuyển kho</string>
+    <string name="transfer_success">Chuyển kho thành công</string>
+    <string name="transfer_failed">Chuyển kho thất bại</string>
+    <string name="transfer_no_options">Không có dữ liệu</string>
+
+    <string name="menu_stocktake">Kiểm kê kho</string>
+    <string name="stocktake_title">Kiểm kê &amp; đối chiếu</string>
+    <string name="stocktake_location">Vị trí kiểm kê</string>
+    <string name="stocktake_select_location">Chọn vị trí</string>
+    <string name="stocktake_count_section">Nhập số đếm thực tế</string>
+    <string name="stocktake_count_hint">SL</string>
+    <string name="stocktake_reconcile">Đối chiếu</string>
+    <string name="stocktake_review_title">Kết quả đối chiếu</string>
+    <string name="stocktake_col_product">Sản phẩm</string>
+    <string name="stocktake_col_system">Sổ</string>
+    <string name="stocktake_col_counted">Đếm</string>
+    <string name="stocktake_col_variance">Chênh</string>
+    <string name="stocktake_confirm_adjust">Xác nhận điều chỉnh</string>
+    <string name="stocktake_success">Đối chiếu &amp; điều chỉnh tồn kho thành công</string>
+    <string name="stocktake_failed">Kiểm kê thất bại</string>
+
+    <string name="menu_report">Báo cáo</string>
+    <string name="report_title">Báo cáo Nhập–Xuất–Tồn</string>
+    <string name="report_range_week">7 ngày</string>
+    <string name="report_range_month">30 ngày</string>
+    <string name="report_range_quarter">90 ngày</string>
+    <string name="report_range_all">Tất cả</string>
+    <string name="report_period">Từ %1$s đến %2$s</string>
+    <string name="report_col_in">Nhập</string>
+    <string name="report_col_out">Xuất</string>
+    <string name="report_col_stock">Tồn</string>
+    <string name="report_total">TỔNG</string>
+    <string name="report_empty">Không có dữ liệu trong kỳ</string>
+    <string name="report_export">Xuất CSV</string>
+
+    <string name="nav_dashboard">Tổng quan</string>
+    <string name="nav_inventory">Kiểm kê</string>
+    <string name="nav_chat">Trợ lý AI</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <string name="dashboard_overview">Tổng quan kho</string>
+    <string name="dashboard_quick_actions">Thao tác nhanh</string>
+    <string name="dashboard_stat_stock_items">Dòng tồn kho</string>
+    <string name="dashboard_stat_total_qty">Tổng số lượng</string>
+    <string name="dashboard_stat_products">Sản phẩm</string>
+    <string name="dashboard_stat_pending">Chờ đồng bộ</string>
+    <string name="dashboard_pending_warning">Có %1$d giao dịch đang chờ đồng bộ lên server.</string>
+    <string name="dashboard_low_stock_title">Cảnh báo tồn thấp</string>
+    <string name="dashboard_low_stock_levels">Hiện %1$d / Định mức %2$d</string>
+    <string name="dashboard_low_stock_shortage">Thiếu %1$d</string>
 
     <string name="settings_title">Cài đặt</string>
     <string name="settings_language_section_title">Ngôn ngữ</string>

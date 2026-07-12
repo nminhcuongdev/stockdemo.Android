@@ -8,6 +8,21 @@ interface StockDao {
     @Query("SELECT * FROM stocks")
     fun getAllStocks(): Flow<List<StockEntity>>
 
+    @Query("SELECT COUNT(*) FROM stocks")
+    fun observeStockCount(): Flow<Int>
+
+    @Query("SELECT COALESCE(SUM(quantity), 0) FROM stocks")
+    fun observeTotalQuantity(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM products")
+    fun observeProductCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM pending_stock_ins")
+    fun observePendingStockInCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM pending_stock_outs")
+    fun observePendingStockOutCount(): Flow<Int>
+
     @Query("SELECT * FROM stocks")
     suspend fun getAllStockEntities(): List<StockEntity>
 

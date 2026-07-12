@@ -13,7 +13,12 @@ import com.example.stockdemo.feature.stock.data.paging.StockInPagingSource
 import com.example.stockdemo.feature.stock.data.paging.StockOutPagingSource
 import com.example.stockdemo.feature.stock.data.remote.StockRemoteDataSource
 import com.example.stockdemo.feature.stock.data.remote.StockDto
+import com.example.stockdemo.feature.stock.domain.model.CreateStockTakeRequest
+import com.example.stockdemo.feature.stock.domain.model.DashboardStats
 import com.example.stockdemo.feature.stock.domain.model.DeliveryOrder
+import com.example.stockdemo.feature.stock.domain.model.LowStockItem
+import com.example.stockdemo.feature.stock.domain.model.StockMovementReport
+import com.example.stockdemo.feature.stock.domain.model.StockTake
 import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Product
 import com.example.stockdemo.feature.stock.domain.model.Stock
@@ -21,6 +26,7 @@ import com.example.stockdemo.feature.stock.domain.model.StockIn
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import com.example.stockdemo.feature.stock.domain.model.StockMutationResult
 import com.example.stockdemo.feature.stock.domain.model.StockOut
+import com.example.stockdemo.feature.stock.domain.model.TransferStockRequest
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import com.example.stockdemo.feature.stock.domain.repository.StockRepository
 import com.example.stockdemo.feature.stock.sync.StockSyncCoordinator
@@ -39,6 +45,9 @@ class StockRepositoryImpl(
     private companion object {
         const val TAG = "StockRepositoryImpl"
     }
+
+    override fun observeDashboardStats(): Flow<DashboardStats> =
+        localDataSource.observeDashboardStats()
 
     override fun getAllStocks(): Flow<Resource<List<Stock>>> = flow {
         emitLoading()
@@ -189,6 +198,102 @@ class StockRepositoryImpl(
 
     override suspend fun syncPendingStockOuts() {
         syncCoordinator.syncPendingStockOuts()
+    }
+
+    override suspend fun getCachedLocations(): List<Location> =
+        localDataSource.getCachedLocations()
+
+    override fun getLowStockAlerts(): Flow<Resource<List<LowStockItem>>> = flow {
+        emitLoading()
+        if (!isNetworkAvailable()) {
+            emit(Resource.Success(emptyList()))
+            return@flow
+        }
+        try {
+            val response = remoteDataSource.getLowStock()
+            if (response.success && response.data != null) {
+                emit(Resource.Success(response.data.map { it.toDomain() }))
+            } else {
+                emitError(response.message ?: "Không tải được cảnh báo tồn thấp")
+            }
+        } catch (e: Exception) {
+            handleException(e)
+        }
+    }
+
+    override suspend fun getCachedProducts(): List<Product> =
+        localDataSource.getCachedProducts()
+
+    override fun getStockMovementReport(from: String, to: String): Flow<Resource<StockMovementReport>> = flow {
+        emitLoading()
+        if (!isNetworkAvailable()) {
+            emitError("Báo cáo cần kết nối mạng")
+            return@flow
+        }
+        try {
+            val response = remoteDataSource.getStockMovementReport(from, to)
+            if (response.success && response.data != null) {
+                emit(Resource.Success(response.data.toDomain()))
+            } else {
+                emitError(response.message ?: "Không tải được báo cáo")
+            }
+        } catch (e: Exception) {
+            handleException(e)
+        }
+    }
+
+    override fun createStocktake(request: CreateStockTakeRequest): Flow<Resource<StockTake>> = flow {
+        emitLoading()
+        if (!isNetworkAvailable()) {
+            emitError("Kiểm kê cần kết nối mạng")
+            return@flow
+        }
+        try {
+            val response = remoteDataSource.createStocktake(request)
+            if (response.success && response.data != null) {
+                emit(Resource.Success(response.data.toDomain()))
+            } else {
+                emitError(response.message ?: "Tạo phiên kiểm kê thất bại")
+            }
+        } catch (e: Exception) {
+            handleException(e)
+        }
+    }
+
+    override fun completeStocktake(stockTakeId: Int): Flow<Resource<Unit>> = flow {
+        emitLoading()
+        if (!isNetworkAvailable()) {
+            emitError("Kiểm kê cần kết nối mạng")
+            return@flow
+        }
+        try {
+            val response = remoteDataSource.completeStocktake(stockTakeId)
+            if (response.success) {
+                emit(Resource.Success(Unit))
+            } else {
+                emitError(response.message ?: "Đối chiếu thất bại")
+            }
+        } catch (e: Exception) {
+            handleException(e)
+        }
+    }
+
+    override fun transferStock(request: TransferStockRequest): Flow<Resource<Unit>> = flow {
+        emitLoading()
+        if (!isNetworkAvailable()) {
+            emitError("Chuyển kho cần kết nối mạng")
+            return@flow
+        }
+        try {
+            val response = remoteDataSource.transferStock(request)
+            if (response.success) {
+                emit(Resource.Success(Unit))
+            } else {
+                emitError(response.message ?: "Chuyển kho thất bại")
+            }
+        } catch (e: Exception) {
+            handleException(e)
+        }
     }
 
     override fun getLocationByQrCode(qrCode: String): Flow<Resource<Location>> = flow {

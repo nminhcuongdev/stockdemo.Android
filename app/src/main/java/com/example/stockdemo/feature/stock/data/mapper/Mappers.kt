@@ -10,16 +10,26 @@ import com.example.stockdemo.feature.stock.data.local.StockEntity
 import com.example.stockdemo.feature.auth.domain.model.User
 import com.example.stockdemo.feature.stock.data.remote.DeliveryOrderDto
 import com.example.stockdemo.feature.stock.data.remote.LocationDto
+import com.example.stockdemo.feature.stock.data.remote.LowStockItemDto
 import com.example.stockdemo.feature.stock.data.remote.ProductDto
 import com.example.stockdemo.feature.stock.data.remote.StockDto
 import com.example.stockdemo.feature.stock.data.remote.StockInDto
+import com.example.stockdemo.feature.stock.data.remote.StockMovementReportDto
+import com.example.stockdemo.feature.stock.data.remote.StockMovementReportItemDto
 import com.example.stockdemo.feature.stock.data.remote.StockOutDto
+import com.example.stockdemo.feature.stock.data.remote.StockTakeDto
+import com.example.stockdemo.feature.stock.data.remote.StockTakeItemDto
 import com.example.stockdemo.feature.stock.domain.model.Location
+import com.example.stockdemo.feature.stock.domain.model.LowStockItem
 import com.example.stockdemo.feature.stock.domain.model.DeliveryOrder
 import com.example.stockdemo.feature.stock.domain.model.Product
 import com.example.stockdemo.feature.stock.domain.model.Stock
 import com.example.stockdemo.feature.stock.domain.model.StockIn
+import com.example.stockdemo.feature.stock.domain.model.StockMovementReport
+import com.example.stockdemo.feature.stock.domain.model.StockMovementReportItem
 import com.example.stockdemo.feature.stock.domain.model.StockOut
+import com.example.stockdemo.feature.stock.domain.model.StockTake
+import com.example.stockdemo.feature.stock.domain.model.StockTakeItem
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 
@@ -230,6 +240,47 @@ fun StockInRequest.toPendingEntity(): PendingStockInEntity = PendingStockInEntit
     quantity = quantity,
     userId = userId,
     createdAt = System.currentTimeMillis()
+)
+
+fun LowStockItemDto.toDomain(): LowStockItem = LowStockItem(
+    productId = productId,
+    productCode = product?.productCode ?: "",
+    productName = product?.productName ?: "",
+    unit = product?.unit ?: "",
+    currentQuantity = currentQuantity,
+    minQuantity = minQuantity,
+    shortage = shortage
+)
+
+fun StockTakeItemDto.toDomain(): StockTakeItem = StockTakeItem(
+    productId = productId,
+    productName = product?.productName ?: "",
+    systemQuantity = systemQuantity,
+    countedQuantity = countedQuantity,
+    variance = variance
+)
+
+fun StockTakeDto.toDomain(): StockTake = StockTake(
+    stockTakeId = stockTakeId,
+    status = status,
+    items = items?.map { it.toDomain() } ?: emptyList()
+)
+
+fun StockMovementReportItemDto.toDomain(): StockMovementReportItem = StockMovementReportItem(
+    productId = productId,
+    productCode = product?.productCode ?: "",
+    productName = product?.productName ?: "",
+    unit = product?.unit ?: "",
+    totalIn = totalIn,
+    totalOut = totalOut,
+    currentStock = currentStock
+)
+
+fun StockMovementReportDto.toDomain(): StockMovementReport = StockMovementReport(
+    totalIn = totalIn,
+    totalOut = totalOut,
+    totalStock = totalStock,
+    items = items?.map { it.toDomain() } ?: emptyList()
 )
 
 fun UpdateQuantityRequest.toPendingEntity(stockId: Int): PendingStockOutEntity = PendingStockOutEntity(

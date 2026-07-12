@@ -38,14 +38,16 @@ import com.example.stockdemo.core.ui.theme.OrangeColor
 @Composable
 fun SettingsScreen(
     userViewModel: UserViewModel,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showBackButton: Boolean = true
 ) {
     val languageCode by userViewModel.languageCode.collectAsStateWithLifecycle(initialValue = "vi")
 
     SettingsContent(
         selectedLanguageCode = languageCode,
         onLanguageSelected = userViewModel::updateLanguage,
-        onBack = onBack
+        onBack = onBack,
+        showBackButton = showBackButton
     )
 }
 
@@ -54,7 +56,8 @@ fun SettingsScreen(
 private fun SettingsContent(
     selectedLanguageCode: String,
     onLanguageSelected: (String) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    showBackButton: Boolean = true
 ) {
     val languageOptions = listOf(
         LanguageOption(code = "vi", label = stringResource(R.string.language_vietnamese)),
@@ -71,11 +74,13 @@ private fun SettingsContent(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
+                    if (showBackButton) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

@@ -1,18 +1,36 @@
 package com.example.stockdemo.feature.stock.data.local
 
 import com.example.stockdemo.feature.stock.data.mapper.toDomain
+import com.example.stockdemo.feature.stock.domain.model.DashboardStats
 import com.example.stockdemo.feature.stock.domain.model.DeliveryOrder
 import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Product
 import com.example.stockdemo.feature.stock.domain.model.Stock
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 
 @Singleton
 class StockLocalDataSource @Inject constructor(
     private val stockDao: StockDao
 ) {
+
+    fun observeDashboardStats(): Flow<DashboardStats> = combine(
+        stockDao.observeStockCount(),
+        stockDao.observeTotalQuantity(),
+        stockDao.observeProductCount(),
+        stockDao.observePendingStockInCount(),
+        stockDao.observePendingStockOutCount()
+    ) { values ->
+        DashboardStats(
+            totalStockItems = values[0],
+            totalQuantity = values[1],
+            productCount = values[2],
+            pendingSyncCount = values[3] + values[4]
+        )
+    }
 
     suspend fun getCachedStocks(): List<Stock> {
         val stockEntities = stockDao.getAllStocks().firstOrNull().orEmpty()
@@ -67,6 +85,12 @@ class StockLocalDataSource @Inject constructor(
         stockDao.clearDeliveryOrders()
         stockDao.insertDeliveryOrders(items)
     }
+
+    suspend fun getCachedLocations(): List<Location> =
+        stockDao.getLocations().map { it.toDomain() }
+
+    suspend fun getCachedProducts(): List<Product> =
+        stockDao.getProducts().map { it.toDomain() }
 
     suspend fun getProductByCodes(codes: List<String>): Product? {
         return codes.firstNotNullOfOrNull { code ->

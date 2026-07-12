@@ -4,7 +4,9 @@ import com.example.stockdemo.core.network.model.BaseResponse
 import com.example.stockdemo.core.network.model.PagedResponse
 import com.example.stockdemo.feature.auth.data.repository.LoginResponseDto
 import com.example.stockdemo.feature.auth.domain.model.LoginRequest
+import com.example.stockdemo.feature.stock.domain.model.CreateStockTakeRequest
 import com.example.stockdemo.feature.stock.domain.model.StockInRequest
+import com.example.stockdemo.feature.stock.domain.model.TransferStockRequest
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -43,6 +45,24 @@ interface ApiService {
         @Path("id") id: Int,
         @Body updateQuantityRequest: UpdateQuantityRequest
     ): BaseResponse<StockDto>
+
+    @POST("StockTransfers")
+    suspend fun transferStock(@Body request: TransferStockRequest): BaseResponse<StockTransferDto>
+
+    @GET("StockAlerts/low-stock")
+    suspend fun getLowStock(): BaseResponse<List<LowStockItemDto>>
+
+    @POST("StockTakes")
+    suspend fun createStocktake(@Body request: CreateStockTakeRequest): BaseResponse<StockTakeDto>
+
+    @POST("StockTakes/{id}/complete")
+    suspend fun completeStocktake(@Path("id") id: Int): BaseResponse<StockTakeDto>
+
+    @GET("reports/stock-movement")
+    suspend fun getStockMovementReport(
+        @Query("from") from: String,
+        @Query("to") to: String
+    ): BaseResponse<StockMovementReportDto>
 
     @GET("DeliveryOrders/qrcode/{qrCode}")
     suspend fun getDeliveryOrderByQrCode(

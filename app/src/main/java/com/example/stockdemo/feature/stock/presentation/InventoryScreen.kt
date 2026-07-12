@@ -66,7 +66,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun InventoryScreen(onBack: () -> Unit) {
+fun InventoryScreen(onBack: () -> Unit, showBackButton: Boolean = true) {
     val context = LocalContext.current
     val rfidManager = remember { RfidManager.InitInstance(context) }
 
@@ -117,11 +117,13 @@ fun InventoryScreen(onBack: () -> Unit) {
             TopAppBar(
                 title = { Text(stringResource(R.string.inventory_title), fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.back)
-                        )
+                    if (showBackButton) {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back)
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

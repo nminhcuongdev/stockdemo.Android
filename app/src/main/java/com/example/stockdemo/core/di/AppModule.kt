@@ -5,6 +5,9 @@ import android.content.Context
 import androidx.room.Room
 import com.example.stockdemo.BuildConfig
 import com.example.stockdemo.core.network.AuthInterceptor
+import com.example.stockdemo.core.network.UnauthorizedInterceptor
+import com.example.stockdemo.core.session.SessionManager
+import com.example.stockdemo.feature.stock.data.local.DatabaseMigrations
 import com.example.stockdemo.feature.stock.data.local.StockDao
 import com.example.stockdemo.feature.stock.data.local.StockDatabase
 import com.example.stockdemo.feature.stock.data.local.StockLocalDataSource
@@ -28,6 +31,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -39,7 +43,13 @@ object AppModule {
     @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            // Only log full request/response bodies in debug builds so that
+            // access tokens and payloads are never written to logs in release.
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
         }
     }
 
@@ -67,14 +77,31 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideUnauthorizedInterceptor(
+        sessionManager: SessionManager,
+        @Named("StockBaseUrl") protectedBaseUrl: String
+    ): UnauthorizedInterceptor {
+        return UnauthorizedInterceptor(
+            sessionManager = sessionManager,
+            protectedBaseUrl = protectedBaseUrl
+        )
+    }
+
+    @Provides
+    @Singleton
     @Named("StockOkHttpClient")
     fun provideStockOkHttpClient(
         authInterceptor: AuthInterceptor,
+        unauthorizedInterceptor: UnauthorizedInterceptor,
         logging: HttpLoggingInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(authInterceptor)
+            .addInterceptor(unauthorizedInterceptor)
             .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
@@ -84,6 +111,10 @@ object AppModule {
     fun providePythonOkHttpClient(logging: HttpLoggingInterceptor): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(logging)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            // AI responses can take a while, so allow a longer read timeout.
+            .readTimeout(60, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
@@ -134,7 +165,11 @@ object AppModule {
             app,
             StockDatabase::class.java,
             "stock_db"
-        ).fallbackToDestructiveMigration().build()
+        )
+            // Preserve offline pending-sync data across schema changes by using
+            // explicit migrations instead of a destructive fallback.
+            .addMigrations(*DatabaseMigrations.ALL)
+            .build()
     }
 
     @Provides
