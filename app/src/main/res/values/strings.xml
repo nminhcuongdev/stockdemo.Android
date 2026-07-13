@@ -26,7 +26,9 @@
 
     <string name="transfer_title">Chuyển kho</string>
     <string name="transfer_source">Tồn kho nguồn</string>
-    <string name="transfer_select_source">Chọn tồn kho cần chuyển</string>
+    <string name="transfer_select_source">Chưa chọn - Quét mã QR để chọn tồn kho nguồn</string>
+    <string name="transfer_source_not_found">Không tìm thấy tồn kho với mã QR này</string>
+    <string name="transfer_rescan">Quét lại</string>
     <string name="transfer_target_location">Vị trí đích</string>
     <string name="transfer_select_location">Chọn vị trí đích</string>
     <string name="transfer_quantity">Số lượng chuyển</string>
@@ -149,11 +151,26 @@
 
     <string name="inventory_title">Kiểm kê RFID</string>
     <string name="inventory_error">Lỗi: %1$s</string>
-    <string name="inventory_unique_tags">Thẻ duy nhất: %1$d</string>
-    <string name="inventory_total_reads">Tổng lượt đọc: %1$d</string>
+    <string name="inventory_total">Tổng: %1$d thẻ</string>
     <string name="inventory_empty">Chưa có thẻ nào được quét</string>
     <string name="inventory_rssi">RSSI: %1$d dBm</string>
     <string name="inventory_count">Số lần: %1$d</string>
+    <string name="inventory_power">Công suất phát: %1$d dBm</string>
+    <string name="inventory_assign_title">Gán thẻ cho sản phẩm</string>
+    <string name="inventory_assign_no_stocks">Chưa có dữ liệu tồn kho. Hãy đồng bộ trước.</string>
+    <string name="inventory_assign_stock_subtitle">%1$s • %2$s • SL: %3$d</string>
+    <string name="inventory_assign_action">Gán</string>
+
+    <string name="rfid_settings_section_title">Cấu hình đầu đọc RFID</string>
+    <string name="rfid_settings_section_description">Điều chỉnh thông số mặc định cho việc quét thẻ RFID.</string>
+    <string name="rfid_settings_power">Công suất phát: %1$d dBm</string>
+    <string name="rfid_settings_session">Session</string>
+    <string name="rfid_settings_session_hint">S1 khuyến nghị: thẻ đã đọc nhanh hiện lại. S2/S3 giữ thẻ \"ngủ\" lâu hơn.</string>
+    <string name="rfid_settings_workmode">Chế độ đọc</string>
+    <string name="rfid_settings_workmode_hint">MultiTagMode để đọc nhiều thẻ cùng lúc.</string>
+    <string name="rfid_settings_q_dynamic">Q động (tự điều chỉnh chống va chạm)</string>
+    <string name="rfid_settings_filter_duplicate">Không đọc trùng thẻ</string>
+    <string name="rfid_settings_filter_duplicate_hint">Mỗi thẻ chỉ báo một lần trong một lần quét.</string>
 
     <string name="import_history_title">Lịch sử nhập kho</string>
     <string name="import_history_unknown_product">Sản phẩm không xác định</string>

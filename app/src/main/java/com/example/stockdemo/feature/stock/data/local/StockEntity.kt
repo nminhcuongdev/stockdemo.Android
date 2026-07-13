@@ -72,5 +72,15 @@ data class DeliveryOrderEntity(
     val status: String
 )
 
+/** Pairs a physical RFID tag's EPC with a product's stock QR code, so a scanned EPC
+ *  can be resolved to product info instead of shown as a raw hex string. User-assigned
+ *  from the Inventory screen; persists across app restarts and sync cycles. */
+@Entity(tableName = "epc_mappings")
+data class EpcMappingEntity(
+    @PrimaryKey val epc: String,
+    val qrCode: String,
+    val mappedAt: Long
+)
+
 
 

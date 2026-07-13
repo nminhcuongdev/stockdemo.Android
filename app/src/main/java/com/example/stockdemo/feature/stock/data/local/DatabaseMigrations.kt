@@ -1,6 +1,7 @@
 package com.example.stockdemo.feature.stock.data.local
 
 import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Explicit Room migrations for [StockDatabase].
@@ -23,5 +24,20 @@ import androidx.room.migration.Migration
  * with `MigrationTestHelper`.
  */
 object DatabaseMigrations {
-    val ALL: Array<Migration> = emptyArray()
+    val MIGRATION_4_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS `epc_mappings` (
+                    `epc` TEXT NOT NULL,
+                    `qrCode` TEXT NOT NULL,
+                    `mappedAt` INTEGER NOT NULL,
+                    PRIMARY KEY(`epc`)
+                )
+                """.trimIndent()
+            )
+        }
+    }
+
+    val ALL: Array<Migration> = arrayOf(MIGRATION_4_5)
 }

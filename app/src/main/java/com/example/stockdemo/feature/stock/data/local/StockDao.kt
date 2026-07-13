@@ -107,6 +107,15 @@ interface StockDao {
 
     @Query("DELETE FROM pending_stock_outs WHERE pendingId = :pendingId")
     suspend fun deletePendingStockOut(pendingId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertEpcMapping(mapping: EpcMappingEntity)
+
+    @Query("SELECT * FROM epc_mappings")
+    fun observeEpcMappings(): Flow<List<EpcMappingEntity>>
+
+    @Query("DELETE FROM epc_mappings WHERE epc = :epc")
+    suspend fun deleteEpcMapping(epc: String)
 }
 
 

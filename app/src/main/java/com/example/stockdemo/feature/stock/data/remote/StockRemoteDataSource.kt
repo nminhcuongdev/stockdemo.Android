@@ -61,4 +61,11 @@ class StockRemoteDataSource @Inject constructor(
     ): BaseResponse<PagedResponse<StockOutDto>> {
         return api.getStockOutHistory(pageNumber = pageNumber, pageSize = pageSize)
     }
+
+    suspend fun getEpcMappings(): BaseResponse<List<EpcMappingDto>> = api.getEpcMappings()
+
+    suspend fun assignEpc(epc: String, qrCode: String): BaseResponse<EpcMappingDto> =
+        api.assignEpc(AssignEpcRequest(epc, qrCode))
+
+    suspend fun deleteEpcMapping(epc: String): BaseResponse<Boolean> = api.deleteEpcMapping(epc)
 }

@@ -1,7 +1,9 @@
 package com.example.stockdemo.feature.stock.presentation.transfer
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,8 +14,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.SwapHoriz
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,6 +54,8 @@ import com.example.stockdemo.core.ui.theme.PrimaryColor
 import com.example.stockdemo.core.ui.util.toast
 import com.example.stockdemo.feature.stock.domain.model.Location
 import com.example.stockdemo.feature.stock.domain.model.Stock
+import com.example.stockdemo.feature.stock.presentation.SystemBroadcastReceiver
+import com.example.stockdemo.feature.stock.presentation.isLocationCode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,6 +80,20 @@ fun TransferScreen(
                     quantityText = ""
                 }
                 is TransferEvent.Error -> context.toast(event.message.asString(context))
+            }
+        }
+    }
+
+    // Listen for hardware QR/barcode scans (same broadcast the scanner engine emits for Import).
+    SystemBroadcastReceiver("mici") { intent ->
+        val scannedCode = intent?.getStringExtra("data")
+        if (!scannedCode.isNullOrBlank() && !isLocationCode(scannedCode)) {
+            val match = uiState.stocks.firstOrNull { it.qrCode == scannedCode }
+            if (match != null) {
+                selectedStock = match
+                if (selectedLocation?.locationId == match.locationId) selectedLocation = null
+            } else {
+                context.toast(context.getString(R.string.transfer_source_not_found))
             }
         }
     }
@@ -111,19 +134,48 @@ fun TransferScreen(
                 .padding(20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Source stock
-            DropdownField(
-                label = stringResource(R.string.transfer_source),
-                selectedText = selectedStock?.let { stockLabel(it) } ?: "",
-                placeholder = stringResource(R.string.transfer_select_source),
-                options = uiState.stocks,
-                optionLabel = { stockLabel(it) },
-                onSelected = {
-                    selectedStock = it
-                    // Reset destination if it now matches the new source location.
-                    if (selectedLocation?.locationId == it.locationId) selectedLocation = null
-                }
+            // Source stock — selected by scanning its QR code (hardware scanner trigger).
+            Text(
+                text = stringResource(R.string.transfer_source),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(Modifier.height(6.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    val stock = selectedStock
+                    Text(
+                        text = stock?.let { stockLabel(it) } ?: stringResource(R.string.transfer_select_source),
+                        color = if (stock != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = if (stock != null) FontWeight.SemiBold else FontWeight.Normal,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (stock != null) {
+                        IconButton(onClick = { selectedStock = null }) {
+                            Icon(
+                                imageVector = Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.transfer_rescan)
+                            )
+                        }
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.QrCodeScanner,
+                            contentDescription = stringResource(R.string.scan),
+                            tint = PrimaryColor
+                        )
+                    }
+                }
+            }
 
             Spacer(Modifier.height(16.dp))
 

@@ -9,6 +9,7 @@ import com.example.stockdemo.feature.stock.domain.model.StockInRequest
 import com.example.stockdemo.feature.stock.domain.model.TransferStockRequest
 import com.example.stockdemo.feature.stock.domain.model.UpdateQuantityRequest
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -87,6 +88,15 @@ interface ApiService {
         @Query("pageNumber") pageNumber: Int = 1,
         @Query("pageSize") pageSize: Int = 10
     ): BaseResponse<PagedResponse<StockOutDto>>
+
+    @GET("EpcMappings")
+    suspend fun getEpcMappings(): BaseResponse<List<EpcMappingDto>>
+
+    @POST("EpcMappings")
+    suspend fun assignEpc(@Body request: AssignEpcRequest): BaseResponse<EpcMappingDto>
+
+    @DELETE("EpcMappings/{epc}")
+    suspend fun deleteEpcMapping(@Path("epc", encoded = true) epc: String): BaseResponse<Boolean>
 
 }
 

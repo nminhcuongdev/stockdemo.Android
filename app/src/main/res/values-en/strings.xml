@@ -26,7 +26,9 @@
 
     <string name="transfer_title">Stock transfer</string>
     <string name="transfer_source">Source stock</string>
-    <string name="transfer_select_source">Select stock to transfer</string>
+    <string name="transfer_select_source">Not selected - Scan a QR code to choose the source stock</string>
+    <string name="transfer_source_not_found">No stock found for this QR code</string>
+    <string name="transfer_rescan">Rescan</string>
     <string name="transfer_target_location">Destination location</string>
     <string name="transfer_select_location">Select destination location</string>
     <string name="transfer_quantity">Transfer quantity</string>
@@ -149,11 +151,26 @@
 
     <string name="inventory_title">RFID Inventory</string>
     <string name="inventory_error">Error: %1$s</string>
-    <string name="inventory_unique_tags">Unique tags: %1$d</string>
-    <string name="inventory_total_reads">Total reads: %1$d</string>
+    <string name="inventory_total">Total: %1$d tags</string>
     <string name="inventory_empty">No tags scanned yet</string>
     <string name="inventory_rssi">RSSI: %1$d dBm</string>
     <string name="inventory_count">Count: %1$d</string>
+    <string name="inventory_power">Tx power: %1$d dBm</string>
+    <string name="inventory_assign_title">Assign tag to product</string>
+    <string name="inventory_assign_no_stocks">No stock data yet. Sync first.</string>
+    <string name="inventory_assign_stock_subtitle">%1$s • %2$s • Qty: %3$d</string>
+    <string name="inventory_assign_action">Assign</string>
+
+    <string name="rfid_settings_section_title">RFID reader configuration</string>
+    <string name="rfid_settings_section_description">Adjust the default parameters used when scanning RFID tags.</string>
+    <string name="rfid_settings_power">Tx power: %1$d dBm</string>
+    <string name="rfid_settings_session">Session</string>
+    <string name="rfid_settings_session_hint">S1 recommended: read tags reappear quickly. S2/S3 keep tags asleep longer.</string>
+    <string name="rfid_settings_workmode">Read mode</string>
+    <string name="rfid_settings_workmode_hint">Use MultiTagMode to read many tags at once.</string>
+    <string name="rfid_settings_q_dynamic">Dynamic Q (auto anti-collision)</string>
+    <string name="rfid_settings_filter_duplicate">Don\'t read duplicate tags</string>
+    <string name="rfid_settings_filter_duplicate_hint">Each tag is reported once per scan.</string>
 
     <string name="import_history_title">Import history</string>
     <string name="import_history_unknown_product">Unknown product</string>

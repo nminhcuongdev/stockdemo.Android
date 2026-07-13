@@ -10,9 +10,10 @@ import androidx.room.RoomDatabase
         LocationEntity::class,
         PendingStockInEntity::class,
         PendingStockOutEntity::class,
-        DeliveryOrderEntity::class
+        DeliveryOrderEntity::class,
+        EpcMappingEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 abstract class StockDatabase : RoomDatabase() {
