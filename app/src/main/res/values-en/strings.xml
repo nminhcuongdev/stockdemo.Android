@@ -11,6 +11,7 @@
     <string name="logout">Logout</string>
     <string name="unknown_error">Unknown error</string>
     <string name="na">N/A</string>
+    <string name="notif_channel_low_stock">Low-stock alerts</string>
 
     <string name="menu_title">WAREHOUSE</string>
     <string name="menu_greeting">Hello,</string>

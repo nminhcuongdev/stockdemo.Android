@@ -1,9 +1,13 @@
 package com.example.stockdemo.app
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
@@ -37,6 +41,22 @@ class MainActivity : ComponentActivity() {
                 val languageCode = userViewModel.languageCode.collectAsStateWithLifecycle(initialValue = "vi")
                 LaunchedEffect(languageCode.value) {
                     LanguageManager.applyLanguage(languageCode.value)
+                }
+
+                // Ask for notification permission (Android 13+) so low-stock pushes can show.
+                val notificationPermissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { }
+                LaunchedEffect(Unit) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }
+
+                // (Re)register the FCM token with the backend whenever the user is logged in.
+                val isLoggedIn by appViewModel.isLoggedIn.collectAsStateWithLifecycle()
+                LaunchedEffect(isLoggedIn) {
+                    if (isLoggedIn) appViewModel.registerPushToken()
                 }
 
                 val startState by appViewModel.startState.collectAsStateWithLifecycle()

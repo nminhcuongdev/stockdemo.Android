@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -117,6 +118,11 @@ dependencies {
 
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
+
+    // Firebase Cloud Messaging for low-stock push notifications
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 
     testImplementation(libs.junit)
     testImplementation("io.mockk:mockk:1.13.12")

@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.example.stockdemo.core.notification.NotificationHelper
 import com.example.stockdemo.core.ui.util.LanguageManager
 import com.example.stockdemo.core.ui.util.NetworkManager
 import com.example.stockdemo.feature.auth.data.local.UserPreferences
@@ -41,6 +42,8 @@ class StockApplication : Application(), Configuration.Provider {
         super.onCreate()
 
         WorkManager.initialize(this, workManagerConfiguration)
+
+        NotificationHelper.ensureChannel(this)
 
         val savedLanguageCode = runBlocking {
             UserPreferences(this@StockApplication).getSavedLanguageCode()

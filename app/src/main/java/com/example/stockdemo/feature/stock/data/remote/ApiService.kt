@@ -2,6 +2,7 @@ package com.example.stockdemo.feature.stock.data.remote
 
 import com.example.stockdemo.core.network.model.BaseResponse
 import com.example.stockdemo.core.network.model.PagedResponse
+import com.example.stockdemo.core.notification.RegisterDeviceTokenRequest
 import com.example.stockdemo.feature.auth.data.repository.LoginResponseDto
 import com.example.stockdemo.feature.auth.domain.model.LoginRequest
 import com.example.stockdemo.feature.stock.domain.model.CreateStockTakeRequest
@@ -97,6 +98,9 @@ interface ApiService {
 
     @DELETE("EpcMappings/{epc}")
     suspend fun deleteEpcMapping(@Path("epc", encoded = true) epc: String): BaseResponse<Boolean>
+
+    @POST("Devices/register-token")
+    suspend fun registerDeviceToken(@Body request: RegisterDeviceTokenRequest): BaseResponse<Unit>
 
 }
 

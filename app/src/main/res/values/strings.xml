@@ -11,6 +11,7 @@
     <string name="logout">Đăng xuất</string>
     <string name="unknown_error">Lỗi không xác định</string>
     <string name="na">N/A</string>
+    <string name="notif_channel_low_stock">Cảnh báo tồn thấp</string>
 
     <string name="menu_title">QUẢN LÝ KHO</string>
     <string name="menu_greeting">Xin chào,</string>
