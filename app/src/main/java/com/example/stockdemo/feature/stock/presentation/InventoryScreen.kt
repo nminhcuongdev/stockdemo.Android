@@ -101,9 +101,11 @@ fun InventoryScreen(
     val epcToStock by inventoryViewModel.epcToStock.collectAsStateWithLifecycle()
     var assigningEpc by remember { mutableStateOf<String?>(null) }
 
-    var tagList by remember { mutableStateOf<List<RFIDTag>>(emptyList()) }
-    var isScanning by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+    // Scan state lives in the ViewModel so it survives configuration changes (e.g. rotation)
+    // instead of being reset mid-scan.
+    val tagList by inventoryViewModel.tags.collectAsStateWithLifecycle()
+    val isScanning by inventoryViewModel.isScanning.collectAsStateWithLifecycle()
+    val errorMessage by inventoryViewModel.errorMessage.collectAsStateWithLifecycle()
 
     DisposableEffect(Unit) {
         val receiver = object : BroadcastReceiver() {
@@ -114,18 +116,8 @@ fun InventoryScreen(
                     if (response == GeneralString.RESPONSE_OPERATION_SUCCESS) {
                         val epc = intent.getStringExtra(GeneralString.EXTRA_EPC) ?: ""
                         val rssi = intent.getIntExtra(GeneralString.EXTRA_DATA_RSSI, 0)
-
-                        // Only track EPCs that are mapped to a known product (server-side
-                        // EpcMappings): unmapped reads are ignored entirely, not shown or counted.
-                        // App-level dedup against everything read so far this session (tagList
-                        // isn't cleared by Stop/Scan, only by the Xóa button), independent of the
-                        // reader's own hardware filter: an EPC already seen is simply ignored.
-                        if (epcToStock.containsKey(epc)) {
-                            val alreadySeen = tagList.any { it.epc == epc }
-                            if (!alreadySeen) {
-                                tagList = tagList + RFIDTag(epc, rssi, 1, System.currentTimeMillis())
-                            }
-                        }
+                        // The ViewModel filters to mapped EPCs and dedups within the session.
+                        inventoryViewModel.onTagScanned(epc, rssi)
                     }
                 }
             }
@@ -206,13 +198,13 @@ fun InventoryScreen(
                             rfidManager?.SetScanMode(ScanMode.Continuous)
                             val result = rfidManager?.SoftScanTrigger(true)
                             if (result == ClResult.S_OK.ordinal) {
-                                isScanning = true
-                                errorMessage = null
+                                inventoryViewModel.setScanning(true)
+                                inventoryViewModel.setError(null)
                             } else {
-                                errorMessage = rfidManager?.GetLastError()
+                                inventoryViewModel.setError(rfidManager?.GetLastError())
                             }
                         } catch (e: Throwable) {
-                            errorMessage = e.message
+                            inventoryViewModel.setError(e.message)
                         }
                     },
                     enabled = !isScanning,
@@ -231,11 +223,11 @@ fun InventoryScreen(
                             // Release the emulated trigger to stop continuous scanning.
                             val result = rfidManager?.SoftScanTrigger(false)
                             if (result == ClResult.S_OK.ordinal) {
-                                isScanning = false
+                                inventoryViewModel.setScanning(false)
                             }
                         } catch (e: Throwable) {
-                            isScanning = false
-                            errorMessage = e.message
+                            inventoryViewModel.setScanning(false)
+                            inventoryViewModel.setError(e.message)
                         }
                     },
                     enabled = isScanning,
@@ -250,8 +242,7 @@ fun InventoryScreen(
 
                 Button(
                     onClick = {
-                        tagList = emptyList()
-                        errorMessage = null
+                        inventoryViewModel.clearTags()
                         // Forget the reader's duplicate records so cleared tags can be read again.
                         try {
                             rfidManager?.ClearFilterDuplicate()
@@ -297,7 +288,7 @@ fun InventoryScreen(
                         try {
                             rfidManager?.SetTxPower(newPower)
                         } catch (e: Throwable) {
-                            errorMessage = e.message
+                            inventoryViewModel.setError(e.message)
                         }
                     }
                 },
