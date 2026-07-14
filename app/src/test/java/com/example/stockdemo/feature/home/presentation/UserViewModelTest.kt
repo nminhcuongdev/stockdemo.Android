@@ -1,5 +1,6 @@
 package com.example.stockdemo.feature.home.presentation
 
+import com.example.stockdemo.core.notification.NotificationTokenManager
 import com.example.stockdemo.feature.auth.data.local.UserPreferences
 import com.example.stockdemo.testutil.MainDispatcherRule
 import io.mockk.coVerify
@@ -21,12 +22,13 @@ class UserViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val userPreferences: UserPreferences = mockk(relaxed = true)
+    private val notificationTokenManager: NotificationTokenManager = mockk(relaxed = true)
 
     private fun createViewModel(): UserViewModel {
         every { userPreferences.userName } returns flowOf(null)
         every { userPreferences.userId } returns flowOf(null)
         every { userPreferences.languageCode } returns flowOf("vi")
-        return UserViewModel(userPreferences)
+        return UserViewModel(userPreferences, notificationTokenManager)
     }
 
     @Test
@@ -35,7 +37,7 @@ class UserViewModelTest {
         every { userPreferences.userId } returns flowOf(42)
         every { userPreferences.languageCode } returns flowOf("en")
 
-        val viewModel = UserViewModel(userPreferences)
+        val viewModel = UserViewModel(userPreferences, notificationTokenManager)
 
         assertEquals("Alice", viewModel.userName.first())
         assertEquals(42, viewModel.userId.first())
@@ -54,7 +56,7 @@ class UserViewModelTest {
     }
 
     @Test
-    fun `updateLanguage delegates to preferences`() = runTest {
+    fun `updateLanguage persists code and re-registers push token`() = runTest {
         val viewModel = createViewModel()
 
         viewModel.updateLanguage("en")
@@ -62,6 +64,8 @@ class UserViewModelTest {
         advanceUntilIdle()
 
         coVerify(exactly = 1) { userPreferences.saveLanguageCode("en") }
+        // The token must be re-registered so the backend sends pushes in the new language.
+        coVerify(exactly = 1) { notificationTokenManager.registerCurrentToken() }
     }
 
     @Test
