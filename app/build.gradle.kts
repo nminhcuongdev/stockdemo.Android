@@ -8,10 +8,14 @@ plugins {
 }
 
 android {
-    namespace = "com.example.stockdemo"
+    namespace = "com.stockdemo.warehouse"
     compileSdk = 35
 
     defaultConfig {
+        // Kept as the original ID so the existing Firebase app registration (and its
+        // google-services.json) keeps working. The code namespace is com.stockdemo.warehouse;
+        // to also rebrand the applicationId, register that package in the Firebase console
+        // and drop in a fresh google-services.json.
         applicationId = "com.example.stockdemo"
         minSdk = 24
         targetSdk = 35

@@ -1,0 +1,43 @@
+package com.stockdemo.warehouse.feature.home.presentation
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.stockdemo.warehouse.core.notification.NotificationTokenManager
+import com.stockdemo.warehouse.feature.auth.data.local.UserPreferences
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
+
+@HiltViewModel
+class UserViewModel @Inject constructor(
+    private val userPreferences: UserPreferences,
+    private val notificationTokenManager: NotificationTokenManager
+) : ViewModel() {
+
+    val userName: Flow<String?> = userPreferences.userName
+    val userId: Flow<Int?> = userPreferences.userId
+    val languageCode: Flow<String> = userPreferences.languageCode
+
+    fun saveUser(name: String, id: Int) {
+        viewModelScope.launch {
+            userPreferences.saveUser(name, id)
+        }
+    }
+
+    fun updateLanguage(languageCode: String) {
+        viewModelScope.launch {
+            userPreferences.saveLanguageCode(languageCode)
+            // Re-register so the backend sends push messages in the newly selected language.
+            notificationTokenManager.registerCurrentToken()
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            userPreferences.clear()
+        }
+    }
+}
+
+
