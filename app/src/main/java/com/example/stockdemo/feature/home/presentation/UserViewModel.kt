@@ -2,6 +2,7 @@ package com.example.stockdemo.feature.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.stockdemo.core.notification.NotificationTokenManager
 import com.example.stockdemo.feature.auth.data.local.UserPreferences
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -10,7 +11,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserViewModel @Inject constructor(
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val notificationTokenManager: NotificationTokenManager
 ) : ViewModel() {
 
     val userName: Flow<String?> = userPreferences.userName
@@ -26,6 +28,8 @@ class UserViewModel @Inject constructor(
     fun updateLanguage(languageCode: String) {
         viewModelScope.launch {
             userPreferences.saveLanguageCode(languageCode)
+            // Re-register so the backend sends push messages in the newly selected language.
+            notificationTokenManager.registerCurrentToken()
         }
     }
 

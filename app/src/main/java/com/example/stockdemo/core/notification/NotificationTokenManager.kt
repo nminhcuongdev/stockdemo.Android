@@ -33,8 +33,9 @@ class NotificationTokenManager @Inject constructor(
     suspend fun register(token: String) {
         try {
             val userId = userPreferences.userId.first()
+            val locale = userPreferences.languageCode.first()
             api.registerDeviceToken(
-                RegisterDeviceTokenRequest(token = token, userId = userId, platform = "android")
+                RegisterDeviceTokenRequest(token = token, userId = userId, platform = "android", locale = locale)
             )
             Log.d(TAG, "Device token registered")
         } catch (e: Exception) {
