@@ -1,5 +1,7 @@
 # StockDemo — Warehouse Management System (Android)
 
+[![CI](https://github.com/nminhcuongdev/stockdemo.Android/actions/workflows/ci.yml/badge.svg)](https://github.com/nminhcuongdev/stockdemo.Android/actions/workflows/ci.yml)
+
 **StockDemo** is a modern Android application for warehouse management, built with
 **Jetpack Compose** and **Clean Architecture**. It works offline-first, integrates a
 physical **UHF RFID reader** (CipherLab), and connects to a .NET backend plus an AI
